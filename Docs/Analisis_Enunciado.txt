@@ -1,0 +1,152 @@
+
+
+--- Enunciado:
+
+    Contexto. Un barrio cerrado con 150 lotes necesita un sistema para ordenar la relación
+    entre la administración y los vecinos, que hoy se resuelve con planillas y mensajes sueltos.
+
+
+
+--- Actores:
+
+    BarrioCerrado
+        - Lote
+        - Persona (abstracta)
+            - Residente (abstracta)
+                - Titular
+                - Familiar
+                - Inquilino
+            - Personal (abstracta)
+                - Administrador
+                - Guardia
+                - EmpleadoMantenimiento
+            - Visitante
+                - Proveedor
+        - Reclamo
+            - Prioridad (enum)
+            - TipoReclamo (enum)
+            - EstadoReclamo (enum)
+            - HistorialEstado
+            - Comentario
+        - Expensa
+            - EstadoExpensa (enum)
+            - Pago
+                - MedioPago (enum)
+            - AjustePago
+        - Equipo (abstracta)
+            - EstadoEquipo (enum)
+            - Luminaria
+            - Camara
+        - Falla
+        - OrdenMantenimiento
+        - AutorizacionIngreso
+            - AutorizacionRecurrente
+        - RegistroIngreso
+        - Notificacion
+        - Reporte
+
+
+
+--- Requerimientos funcionales:
+
+    RF01. Registrar y gestionar los 150 lotes del barrio.
+    RF02. Registrar titulares, familiares e inquilinos.
+    RF03. Asignar un titular y los residentes a cada lote.
+    RF04. Registrar reclamos y pedidos de los vecinos.
+    RF05. Asignar un empleado a cada reclamo.
+    RF06. Consultar y cambiar el estado de los reclamos.
+    RF07. Guardar los cambios de estado de cada reclamo.
+    RF08. Permitir agregar comentarios a los reclamos.
+    RF09. Establecer la prioridad de cada reclamo.
+    RF10. Registrar y gestionar las expensas de los lotes.
+    RF11. Generar las expensas de cada mes.
+    RF12. Calcular cuánto debe pagar cada lote según su superficie.
+    RF13. Registrar pagos totales y parciales.
+    RF14. Calcular intereses por pagos atrasados.
+    RF15. Identificar lotes con deudas y enviar avisos.
+    RF16. Permitir corregir pagos mediante ajustes.
+    RF17. Registrar las cámaras y luminarias del barrio.
+    RF18. Registrar las fallas de los equipos.
+    RF19. Crear órdenes de mantenimiento.
+    RF20. Asignar empleados a las órdenes de mantenimiento.
+    RF21. Consultar y cambiar el estado de los equipos.
+    RF22. Registrar las reparaciones realizadas.
+    RF23. Avisar al administrador cuando una cámara esté fuera de servicio.
+    RF24. Registrar los permisos de ingreso de visitantes.
+    RF25. Registrar permisos de ingreso por varios días para proveedores.
+    RF26. Comprobar que una visita tenga permiso antes de ingresar.
+    RF27. Registrar la entrada y salida de los visitantes.
+    RF28. Crear reportes de reclamos pendientes.
+    RF29. Crear reportes de lotes con deudas.
+    RF30. Crear reportes de equipos fuera de servicio.
+
+
+
+--- Reglas de negocio:
+
+
+
+--- Supuestos:
+
+
+--- Relaciones entre clases:
+
+    BarrioCerrado ◆── Lote (Composición)
+    BarrioCerrado ◇── Personal (Agregación)
+    BarrioCerrado ◇── Equipo (Agregación)
+    BarrioCerrado ──> Reclamo (Asociación)
+    BarrioCerrado ──> Expensa (Asociación)
+    BarrioCerrado ..> Reporte (Dependencia)
+    Residente ──▷ Persona (Herencia)
+    Personal ──▷ Persona (Herencia)
+    Visitante ──▷ Persona (Herencia)
+    Titular ──▷ Residente (Herencia)
+    Familiar ──▷ Residente (Herencia)
+    Inquilino ──▷ Residente (Herencia)
+    Administrador ──▷ Personal (Herencia)
+    Guardia ──▷ Personal (Herencia)
+    EmpleadoMantenimiento ──▷ Personal (Herencia)
+    Proveedor ──▷ Visitante (Herencia)
+    Lote ──> Titular (Asociación)
+    Lote ──> Familiar (Asociación)
+    Lote ──> Inquilino (Asociación)
+    Reclamo ──> Lote (Asociación)
+    Reclamo ──> Residente (Asociación)
+    Reclamo ──> Personal (Asociación)
+    Reclamo ◆── HistorialEstado (Composición)
+    Reclamo ◆── Comentario (Composición)
+    Reclamo ..> TipoReclamo (Dependencia / Enum)
+    Reclamo ──> Prioridad (Asociación con enum)
+    Reclamo ──> EstadoReclamo (Asociación con enum)
+    HistorialEstado ..> EstadoReclamo (Dependencia / Enum)
+    Administrador ──> Reclamo (Asociación)
+    Lote ──> Expensa (Asociación)
+    Expensa ◆── Pago (Composición)
+    Pago ──> MedioPago (Asociación con enum)
+    Pago ◆── AjustePago (Composición)
+    Expensa ──> EstadoExpensa (Asociación con enum)
+    Luminaria ──▷ Equipo (Herencia)
+    Camara ──▷ Equipo (Herencia)
+    Equipo ◆── Falla (Composición)
+    Equipo ──> OrdenMantenimiento (Asociación)
+    Equipo ..> EstadoEquipo (Dependencia / Enum)
+    Falla ──> OrdenMantenimiento (Asociación)
+    OrdenMantenimiento ──> EmpleadoMantenimiento (Asociación)
+    Administrador ──> OrdenMantenimiento (Asociación)
+    Guardia ──> Falla (Asociación)
+    Residente ──> Falla (Asociación)
+    Residente ──> AutorizacionIngreso (Asociación)
+    AutorizacionIngreso ──> Visitante (Asociación)
+    AutorizacionIngreso ──> Lote (Asociación)
+    AutorizacionRecurrente ──▷ AutorizacionIngreso (Herencia)
+    AutorizacionIngreso ──> RegistroIngreso (Asociación)
+    RegistroIngreso ──> Guardia (Asociación)
+    RegistroIngreso ──> Visitante (Asociación)
+    Notificacion ──> Titular (Asociación)
+    Notificacion ──> Lote (Asociación)
+    Administrador ..> Reporte (Dependencia)
+    Reporte ..> Reclamo (Dependencia)
+    Reporte ..> Expensa (Dependencia)
+    Reporte ..> Equipo (Dependencia)
+    Reclamo ..> TipoReclamo (Dependencia / Enum)
+    Equipo ..> EstadoEquipo (Dependencia / Enum)
