@@ -1,0 +1,8 @@
+Cosas a realizar: 
+--- Primera Entrega --- 
+- Analizar el enunciado y plantear las clases
+- Hacer el diagrama UML y de casos de uso
+- Identificar relaciones y multiplicidades
+- Diagrama de secuencia
+- Aplicar patrones SOLID y GRASP 
+- Rehacer el UML para incorporar los cambios aportados por los patrones
