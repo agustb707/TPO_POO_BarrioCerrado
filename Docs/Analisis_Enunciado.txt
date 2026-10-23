@@ -5,363 +5,432 @@
     Un barrio cerrado con 150 lotes necesita un sistema para ordenar la relación
     entre la administración y los vecinos, que hoy se resuelve con planillas y mensajes sueltos.
 
+    Propuesta elegida: A. Gestión de un barrio cerrado «Los Aromos».
+    Etapa: 1. Modelado y aplicación de patrones.
+
 
 
 --- Actores:
 
-1. BarrioCerrado
-Clase: BarrioCerrado
+    Clase: BarrioCerrado
+    Atributos:
+    - nombre: String
+    - lotes: List<Lote>
+    - personal: List<Personal>
+    - reclamos: List<Reclamo>
+    - equipos: List<Equipo>
+    - administrador: Administrador
+    - presupuestoMensual: Map<YearMonth, double>
+    Métodos:
+    - agregarLote(lote: Lote): void
+    - buscarLote(numero: int): Lote
+    - agregarPersonal(personal: Personal): void
+    - registrarEquipo(equipo: Equipo): void
+    - calcularSuperficieTotal(): double
+    - obtenerPresupuesto(periodo: YearMonth): double
 
-Atributos:
-- nombre: String
-- lotes: List<Lote>
-- personal: List<Personal>
-- reclamos: List<Reclamo>
-- equipos: List<Equipo>
-- administrador: Administrador
-Métodos:
-- agregarLote(lote: Lote): void
-- buscarLote(numero: int): Lote
-- agregarPersonal(personal: Personal): void
-- registrarEquipo(equipo: Equipo): void
-2. Lote
-Clase: Lote
 
-Atributos:
-- numeroLote: int
-- superficie: double
-- titular: Titular
-- residentes: List<Residente>
-- expensas: List<Expensa>
-Métodos:
-- asignarTitular(titular: Titular): void
-- agregarResidente(residente: Residente): void
-- quitarResidente(residente: Residente): void
-- obtenerExpensasPendientes(): List<Expensa>
-- calcularDeudaTotal(): double
-3. Persona y sus subclases
-Clase abstracta: Persona
+    Clase: Lote
+    Atributos:
+    - numeroLote: int
+    - superficie: double
+    - titular: Titular
+    - residentes: List<Residente>
+    - autorizadosReclamos: List<Residente>
+    - expensas: List<Expensa>
+    - moroso: boolean
+    Métodos:
+    - asignarTitular(titular: Titular): void
+    - agregarResidente(residente: Residente): void
+    - autorizarReclamos(residente: Residente): void
+    - puedePresentarReclamo(residente: Residente): boolean
+    - calcularCoeficiente(superficieTotal: double): double
+    - contarPeriodosImpagos(): int
+    - actualizarMorosidad(): void
 
-Atributos:
-- nombre: String
-- apellido: String
-- dni: String
-- telefono: String
-- email: String
-Métodos:
 
-- obtenerNombreCompleto(): String
-Clase abstracta: Residente extends Persona
-Atributos:
+    Clase abstracta: Persona
+    Atributos:
+    - nombre: String
+    - apellido: String
+    - dni: String
+    - telefono: String
+    - email: String
+    Métodos:
+    - obtenerNombreCompleto(): String
 
-- lotes: List<Lote>
 
-Métodos:
-- presentarReclamo(lote: Lote, tipo: TipoReclamo, descripcion: String, prioridad: Prioridad): Reclamo
-- comentarReclamo(reclamo: Reclamo, texto: String): void
-- registrarFalla(equipo: Equipo, descripcion: String): Falla
-- autorizarIngreso(visitante: Visitante, lote: Lote, fecha: LocalDate, horaDesde: LocalTime, horaHasta: LocalTime): AutorizacionIngreso
-Clase: Titular extends Residente
+    Clase abstracta: Residente extends Persona
+    Atributos:
+    - lotes: List<Lote>
+    Métodos:
+    - presentarReclamo(lote: Lote, tipo: TipoReclamo, descripcion: String): Reclamo
+    - comentarReclamo(reclamo: Reclamo, texto: String): void
+    - registrarFalla(equipo: Equipo, descripcion: String): Falla
+    - autorizarIngreso(visitante: Visitante, lote: Lote, fecha: LocalDate, horaDesde: LocalTime, horaHasta: LocalTime): AutorizacionIngreso
 
-Atributos: Ninguno adicional.
 
-Métodos:
+    Clase: Titular extends Residente
+    Atributos: Ninguno adicional.
+    Métodos:
+    - consultarExpensas(lote: Lote): List<Expensa>
 
-- consultarExpensas(lote: Lote): List<Expensa>
 
-Clase: Familiar extends Residente
+    Clase: Familiar extends Residente
+    Atributos: Ninguno adicional.
+    Métodos: Hereda los métodos de Residente.
 
-Atributos: Ninguno adicional.
 
-Métodos: Hereda los métodos de Residente.
+    Clase: Inquilino extends Residente
+    Atributos: Ninguno adicional.
+    Métodos: Hereda los métodos de Residente.
 
-Clase: Inquilino extends Residente
 
-Atributos: Ninguno adicional.
+    Clase abstracta: Personal extends Persona
+    Atributos:
+    - legajo: int
+    - fechaIngreso: LocalDate
+    Métodos:
+    - comentarReclamo(reclamo: Reclamo, texto: String): void
 
-Métodos: Hereda los métodos de Residente.
-Clase abstracta: Personal extends Persona
-Atributos:
-- legajo: int
-- fechaIngreso: LocalDate
-Métodos:
 
-- comentarReclamo(reclamo: Reclamo, texto: String): void
+    Clase: Administrador extends Personal
+    Atributos: Ninguno adicional.
+    Métodos:
+    - asignarReclamo(reclamo: Reclamo, empleado: Personal): void
+    - emitirExpensas(periodo: YearMonth): List<Expensa>
+    - registrarPago(lote: Lote, pago: Pago): void
+    - registrarAjuste(pago: Pago, ajuste: AjustePago): void
+    - generarOrdenMantenimiento(falla: Falla, empleado: EmpleadoMantenimiento, descripcion: String): OrdenMantenimiento
+    - generarReporteReclamosPendientes(): List<Reclamo>
+    - generarReporteMorosidad(): Map<Lote, double>
+    - generarReporteEquiposFueraServicio(): List<Equipo>
 
-Clase: Administrador extends Personal
 
-Atributos: Ninguno adicional.
+    Clase: Guardia extends Personal
+    Atributos:
+    - turno: Turno
+    - puesto: Puesto
+    Métodos:
+    - registrarFalla(equipo: Equipo, descripcion: String): Falla
+    - consultarAutorizacion(visitante: Visitante, fechaHora: LocalDateTime): AutorizacionIngreso
+    - registrarIngreso(autorizacion: AutorizacionIngreso): RegistroIngreso
+    - registrarEgreso(registro: RegistroIngreso): void
 
-Métodos:
-- asignarReclamo(reclamo: Reclamo, empleado: EmpleadoMantenimiento): void
-- emitirExpensas(periodo: YearMonth): void
-- generarOrdenMantenimiento(falla: Falla, empleado: EmpleadoMantenimiento, prioridad: Prioridad, descripcion: String): OrdenMantenimiento
-- generarReporteReclamosPendientes(): Reporte
-- generarReporteMorosidad(): Reporte
-- generarReporteEquiposFueraServicio(): Reporte
-Clase: Guardia extends Personal
 
-Atributos:
-- turno: Turno
-- puesto: Puesto
-Métodos:
-- registrarFalla(equipo: Equipo, descripcion: String): Falla
-- consultarAutorizacion(visitante: Visitante, fechaHora: LocalDateTime): AutorizacionIngreso
-- registrarIngreso(autorizacion: AutorizacionIngreso): RegistroIngreso
-- registrarEgreso(registro: RegistroIngreso): void
-Clase: EmpleadoMantenimiento extends Personal
+    Clase: EmpleadoMantenimiento extends Personal
+    Atributos:
+    - especialidad: Especialidad
+    Métodos:
+    - registrarReparacion(orden: OrdenMantenimiento, descripcion: String, fecha: LocalDate): void
+    - cerrarOrden(orden: OrdenMantenimiento): void
 
-Atributos:
 
-- especialidad: Especialidad
+    Clase: Visitante extends Persona
+    Atributos: Ninguno adicional.
+    Métodos: Hereda los métodos de Persona.
 
-Métodos:
 
-- cerrarOrden(orden: OrdenMantenimiento): void
-Clase: Visitante extends Persona
-Atributos: Ninguno adicional.
+    Clase: Proveedor extends Visitante
+    Atributos: Ninguno adicional.
+    Métodos: Hereda los métodos de Visitante.
 
-Métodos: Hereda los métodos de Persona.
 
-Clase: Proveedor extends Visitante
+    Enumeraciones de personal
+    Enum: Turno
+    - MANANA
+    - TARDE
+    - NOCHE
+    Enum: Puesto
+    - PORTERIA
+    - RONDA
+    - MONITOREO
+    Enum: Especialidad
+    - ELECTRICIDAD
+    - PLOMERIA
+    - JARDINERIA
 
-Atributos: Ninguno adicional.
 
-Métodos: Hereda los métodos de Visitante.
-Enumeraciones de personal
-Enum: Turno
-- MANANA
-- TARDE
-- NOCHE
-Enum: Puesto
-- PORTERIA
-- RONDA
-- MONITOREO
-Enum: Especialidad
-- ELECTRICIDAD
-- PLOMERIA
-- JARDINERIA
-4. Reclamos
-Clase: Reclamo
 
-Atributos:
-- numero: int
-- fecha: LocalDate
-- tipo: TipoReclamo
-- descripcion: String
-- prioridad: Prioridad
-- estado: EstadoReclamo
-- lote: Lote
-- residente: Residente
-- empleadoAsignado: EmpleadoMantenimiento
-- historial: List<HistorialEstado>
-- comentarios: List<Comentario>
-Métodos:
-- asignarEmpleado(empleado: EmpleadoMantenimiento): void
-- cambiarEstado(nuevoEstado: EstadoReclamo, observacion: String): void
-- agregarComentario(autor: Persona, texto: String): void
-- consultarHistorial(): List<HistorialEstado>
-- estaPendiente(): boolean
-Clase: HistorialEstado
+    Clase: Reclamo
+    Atributos:
+    - numero: int
+    - fecha: LocalDateTime
+    - tipo: TipoReclamo
+    - descripcion: String
+    - prioridad: Prioridad
+    - estado: EstadoReclamo
+    - fechaResolucion: LocalDateTime
+    - fechaAtencion: LocalDateTime
+    - lote: Lote
+    - residente: Residente
+    - responsable: Personal
+    - historial: List<HistorialEstado>
+    - comentarios: List<Comentario>
+    Métodos:
+    - asignarEmpleado(empleado: Personal): void
+    - cambiarEstado(nuevoEstado: EstadoReclamo, observacion: String): void
+    - reabrir(solicitante: Residente, fecha: LocalDateTime): void
+    - cerrarSiVencioPlazo(fecha: LocalDateTime): void
+    - requiereEscalamiento(fecha: LocalDateTime): boolean
+    - agregarComentario(autor: Persona, texto: String): void
+    - consultarHistorial(): List<HistorialEstado>
+    - estaEnCurso(): boolean
 
-Atributos:
-- fechaCambio: LocalDateTime
-- estadoNuevo: EstadoReclamo
-- observacion: String
-Métodos: Ninguno adicional.
 
-Clase: Comentario
+    Clase: HistorialEstado
+    Atributos:
+    - fechaCambio: LocalDateTime
+    - estadoNuevo: EstadoReclamo
+    - observacion: String
+    Métodos: Ninguno adicional.
 
-Atributos:
-- fecha: LocalDateTime
-- texto: String
-- autor: Persona
-Métodos: Ninguno adicional.
-Enumeraciones de reclamos
-Enum: Prioridad
-- BAJA
-- MEDIA
-- ALTA
-Enum: TipoReclamo
-- SEGURIDAD
-- MANTENIMIENTO
-- CONVIVENCIA
-- OTRO
-Enum: EstadoReclamo
-- PENDIENTE
-- ASIGNADO
-- EN_PROCESO
-- RESUELTO
-- CERRADO
-5. Expensas y pagos
-Clase: Expensa
 
-Atributos:
-- numero: int
-- periodo: YearMonth
-- importe: double
-- fechaVencimiento: LocalDate
-- estado: EstadoExpensa
-- lote: Lote
-- pagos: List<Pago>
-Métodos:
-- registrarPago(pago: Pago): void
-- calcularTotalPagado(): double
-- calcularSaldoPendiente(): double
-- calcularInteresMora(fechaPago: LocalDate): double
-- actualizarEstado(): void
-- estaVencida(): boolean
-Clase: Pago
+    Clase: Comentario
+    Atributos:
+    - fecha: LocalDateTime
+    - texto: String
+    - autor: Persona
+    Métodos: Ninguno adicional.
 
-Atributos:
-- fecha: LocalDate
-- importe: double
-- medioPago: MedioPago
-- interesMora: double
-Métodos:
 
-- calcularImporteTotal(): double
-Enumeraciones de expensas
-Enum: EstadoExpensa
-- PENDIENTE
-- PARCIALMENTE_PAGADA
-- PAGADA
-- VENCIDA
-Enum: MedioPago
-- EFECTIVO
-- TRANSFERENCIA
-- TARJETA
-Ajuste de tu diseño: No agregaría la clase AjustePago. La consigna solamente exige calcular intereses por mora, por lo que alcanza con registrar el interés aplicado en cada pago.
-6. Equipos
-Clase abstracta: Equipo
+    Enumeraciones de reclamos
+    Enum: Prioridad
+    - BAJA
+    - MEDIA
+    - ALTA
+    Enum: TipoReclamo
+    - SEGURIDAD
+    - MANTENIMIENTO
+    - CONVIVENCIA
+    - ADMINISTRATIVO
+    Enum: EstadoReclamo
+    - ABIERTO
+    - ASIGNADO
+    - EN_CURSO
+    - RESUELTO
+    - CERRADO
 
-Atributos:
-- codigo: String
-- sector: Sector
-- fechaInstalacion: LocalDate
-- estado: EstadoEquipo
-- ordenes: List<OrdenMantenimiento>
-Métodos:
-- cambiarEstado(nuevoEstado: EstadoEquipo): void
-- agregarOrden(orden: OrdenMantenimiento): void
-- obtenerHistorialMantenimiento(): List<OrdenMantenimiento>
-- estaFueraDeServicio(): boolean
-Clase: Luminaria extends Equipo
 
-Atributos:
-- tipoLampara: TipoLuminaria
-- potencia: double
-Métodos: Hereda los métodos de Equipo.
 
-Clase: Camara extends Equipo
+    Clase: Expensa
+    Atributos:
+    - numero: int
+    - periodo: YearMonth
+    - capital: double
+    - fechaVencimiento: LocalDate
+    - estado: EstadoExpensa
+    - lote: Lote
+    - pagos: List<Pago>
+    Métodos:
+    - registrarPago(pago: Pago): void
+    - calcularSaldoCapital(): double
+    - calcularInteresMora(fechaPago: LocalDate): double
+    - calcularDeuda(fecha: LocalDate): double
+    - imputarPago(importe: double, fecha: LocalDate): double
+    - actualizarEstado(fecha: LocalDate): void
 
-Atributos:
-- resolucion: Resolucion
-- cantidadDiasGrabacion: int
-Métodos: Hereda los métodos de Equipo.
-Enumeraciones de equipos
-Enum: Sector
-- CALLES_INTERNAS
-- ACCESOS
-- ESPACIOS_COMUNES
-Enum: EstadoEquipo
-- OPERATIVO
-- FUERA_DE_SERVICIO
-- EN_MANTENIMIENTO
-Enum: TipoLuminaria
-- LED
-- HALOGENA
-- FLUORESCENTE
-Enum: Resolucion
-- HD
-- FULL_HD
-- UHD_4K
-7. Fallas y órdenes de mantenimiento
-Clase: Falla
 
-Atributos:
-- numero: int
-- fechaRegistro: LocalDateTime
-- descripcion: String
-- equipo: Equipo
-- reportante: Persona
-- ordenMantenimiento: OrdenMantenimiento
-Métodos:
+    Clase: Pago
+    Atributos:
+    - numero: int
+    - fecha: LocalDate
+    - importe: double
+    - medioPago: MedioPago
+    - imputaciones: List<ImputacionPago>
+    - ajustes: List<AjustePago>
+    Métodos:
+    - registrarAjuste(ajuste: AjustePago): void
+    - obtenerImporteNeto(): double
 
-- asociarOrden(orden: OrdenMantenimiento): void
 
-Clase: OrdenMantenimiento
+    Clase: ImputacionPago
+    Atributos:
+    - expensa: Expensa
+    - importeInteres: double
+    - importeCapital: double
+    Métodos:
+    - calcularTotalImputado(): double
 
-Atributos:
-- numero: int
-- fechaApertura: LocalDate
-- fechaCierre: LocalDate
-- prioridad: Prioridad
-- descripcionTrabajo: String
-- equipo: Equipo
-- falla: Falla
-- empleadoAsignado: EmpleadoMantenimiento
-- administrador: Administrador
-Métodos:
-- asignarEmpleado(empleado: EmpleadoMantenimiento): void
-- cerrarOrden(fecha: LocalDate): void
-- estaAbierta(): boolean
-Corrección importante: En tu propuesta original pusiste fechaApertura, fechaCierre, prioridad y administrador dentro de Falla. Esos datos corresponden a OrdenMantenimiento, según la consigna.
-8. Autorizaciones de ingreso
-Clase: AutorizacionIngreso
 
-Atributos:
-- numero: int
-- visitante: Visitante
-- residenteAutorizante: Residente
-- lote: Lote
-- fechaAutorizada: LocalDate
-- horaDesde: LocalTime
-- horaHasta: LocalTime
-Métodos:
-- esValida(fechaHora: LocalDateTime): boolean
-- correspondeAVisitante(visitante: Visitante): boolean
-Clase: AutorizacionRecurrente extends AutorizacionIngreso
+    Clase: AjustePago
+    Atributos:
+    - fecha: LocalDate
+    - importe: double
+    - motivo: String
+    Métodos: Ninguno adicional.
 
-Atributos:
-- fechaInicio: LocalDate
-- fechaFin: LocalDate
-- diasPermitidos: Set<DiaSemana>
-Métodos:
 
-- esValida(fechaHora: LocalDateTime): boolean
+    Enumeraciones de expensas
+    Enum: EstadoExpensa
+    - PENDIENTE
+    - PARCIALMENTE_PAGADA
+    - PAGADA
+    - VENCIDA
+    Enum: MedioPago
+    - EFECTIVO
+    - TRANSFERENCIA
+    - TARJETA
 
-Sobrescribe esValida() para comprobar el rango de fechas, los días y la franja horaria.
 
-Enum: DiaSemana
-- LUNES
-- MARTES
-- MIERCOLES
-- JUEVES
-- VIERNES
-- SABADO
-- DOMINGO
-9. Registro de ingreso
-Clase: RegistroIngreso
 
-Atributos:
-- numero: int
-- autorizacion: AutorizacionIngreso
-- guardia: Guardia
-- fechaHoraIngreso: LocalDateTime
-- fechaHoraEgreso: LocalDateTime
-Métodos:
-- registrarEgreso(fechaHora: LocalDateTime): void
-- estaDentro(): boolean
-10. Reportes
-Clase: Reporte
+    Clase abstracta: Equipo
+    Atributos:
+    - codigo: String
+    - sector: Sector
+    - fechaInstalacion: LocalDate
+    - estado: EstadoEquipo
+    - fallas: List<Falla>
+    - ordenes: List<OrdenMantenimiento>
+    Métodos:
+    - registrarFalla(falla: Falla): void
+    - cambiarEstado(nuevoEstado: EstadoEquipo): void
+    - determinarPrioridadFalla(cantidadFallasSector: int): Prioridad
+    - estaFueraDeServicio(): boolean
 
-Atributos: Ninguno obligatorio, porque representa el resultado de una consulta.
 
-Métodos:
-- generarReclamosPendientes(reclamos: List<Reclamo>): List<Reclamo>
-- generarMorosidadPorLote(lotes: List<Lote>): Map<Lote, Double>
-- generarEquiposFueraServicio(equipos: List<Equipo>): List<Equipo>
+    Clase: Luminaria extends Equipo
+    Atributos:
+    - tipoLampara: TipoLuminaria
+    - potencia: double
+    Métodos:
+    - determinarPrioridadFalla(cantidadFallasSector: int): Prioridad
+
+
+    Clase: Camara extends Equipo
+    Atributos:
+    - resolucion: Resolucion
+    - cantidadDiasGrabacion: int
+    Métodos:
+    - determinarPrioridadFalla(cantidadFallasSector: int): Prioridad
+
+
+    Enumeraciones de equipos
+    Enum: Sector
+    - CALLES_INTERNAS
+    - ACCESOS
+    - ESPACIOS_COMUNES
+    Enum: EstadoEquipo
+    - OPERATIVO
+    - CON_FALLA
+    - EN_REPARACION
+    - FUERA_DE_SERVICIO
+    Enum: TipoLuminaria
+    - LED
+    - HALOGENA
+    - FLUORESCENTE
+    Enum: Resolucion
+    - HD
+    - FULL_HD
+    - UHD_4K
+
+
+
+    Clase: Falla
+    Atributos:
+    - numero: int
+    - fechaRegistro: LocalDateTime
+    - descripcion: String
+    - equipo: Equipo
+    - reportante: Persona
+    - ordenMantenimiento: OrdenMantenimiento
+    Métodos:
+    - asociarOrden(orden: OrdenMantenimiento): void
+    - requiereAvisoAdministrador(fechaActual: LocalDateTime): boolean
+
+
+    Clase: OrdenMantenimiento
+    Atributos:
+    - numero: int
+    - fechaApertura: LocalDate
+    - fechaCierre: LocalDate
+    - prioridad: Prioridad
+    - descripcionTrabajo: String
+    - descripcionReparacion: String
+    - fechaReparacion: LocalDate
+    - equipo: Equipo
+    - falla: Falla
+    - empleadoAsignado: EmpleadoMantenimiento
+    - administrador: Administrador
+    Métodos:
+    - asignarEmpleado(empleado: EmpleadoMantenimiento): void
+    - registrarReparacion(fecha: LocalDate, descripcion: String): void
+    - cerrarOrden(fecha: LocalDate): void
+    - estaAbierta(): boolean
+
+
+
+    Clase: AutorizacionIngreso
+    Atributos:
+    - numero: int
+    - visitante: Visitante
+    - residenteAutorizante: Residente
+    - lote: Lote
+    - fechaAutorizada: LocalDate
+    - horaDesde: LocalTime
+    - horaHasta: LocalTime
+    Métodos:
+    - esValida(fechaHora: LocalDateTime): boolean
+    - correspondeAVisitante(visitante: Visitante): boolean
+
+
+    Clase: AutorizacionRecurrente extends AutorizacionIngreso
+    Atributos:
+    - fechaInicio: LocalDate
+    - fechaFin: LocalDate
+    - diasPermitidos: Set<DiaSemana>
+    Métodos:
+    - esValida(fechaHora: LocalDateTime): boolean
+
+
+    Enum: DiaSemana
+    - LUNES
+    - MARTES
+    - MIERCOLES
+    - JUEVES
+    - VIERNES
+    - SABADO
+    - DOMINGO
+
+
+
+    Clase: RegistroIngreso
+    Atributos:
+    - numero: int
+    - autorizacion: AutorizacionIngreso
+    - guardia: Guardia
+    - fechaHoraIngreso: LocalDateTime
+    - fechaHoraEgreso: LocalDateTime
+    Métodos:
+    - registrarEgreso(fechaHora: LocalDateTime): void
+    - estaDentro(): boolean
+
+
+
+    Clase: Notificacion
+    Atributos:
+    - fecha: LocalDateTime
+    - destinatario: Persona
+    - lote: Lote
+    - mensaje: String
+    - motivo: TipoNotificacion
+    Métodos:
+    - generarAviso(): String
+
+
+    Enum: TipoNotificacion
+    - MOROSIDAD
+    - RECLAMO_ESCALADO
+    - CAMARA_FUERA_DE_SERVICIO
+
+
+
+    Clase: Reporte
+    Atributos: Ninguno obligatorio.
+    Métodos:
+    - generarReclamosPendientes(reclamos: List<Reclamo>): List<Reclamo>
+    - generarMorosidadPorLote(lotes: List<Lote>): Map<Lote, double>
+    - generarEquiposFueraServicio(equipos: List<Equipo>): List<Equipo>
 
 
 --- Requerimientos funcionales:
@@ -400,49 +469,67 @@ Métodos:
 
 
 --- Reglas de negocio:
-    - El barrio cerrado está compuesto por 150 lotes identificados de forma única.
-    - Cada lote tiene un único titular y puede tener cero o más familiares e inquilinos residentes.
-    - Una persona puede estar asociada a un lote como titular, familiar o inquilino, según corresponda.
-    - Los titulares son responsables del pago de las expensas de sus lotes.
-    - Las expensas se generan mensualmente y el importe se calcula en función de la superficie del lote.
-    - Un lote puede registrar pagos totales o parciales y ajustes posteriores sobre esos pagos.
-    - Los pagos atrasados generan intereses según una tasa definida por la administración.
-    - Todo reclamo pertenece a un lote y es realizado por un residente registrado.
-    - Cada reclamo puede tener un empleado asignado, una prioridad, un estado, comentarios e historial de cambios.
-    - Los estados de reclamos y expensas se modifican mediante valores previamente definidos por el sistema.
-    - Las cámaras y luminarias son equipos del barrio y pueden registrar fallas y órdenes de mantenimiento.
-    - Una orden de mantenimiento puede ser asignada a un empleado de mantenimiento y registrar la reparación realizada.
-    - Los visitantes deben contar con una autorización vigente para ingresar al barrio.
-    - Las autorizaciones recurrentes permiten el ingreso de proveedores durante varios días.
-    - La guardia registra la entrada y salida de cada visitante autorizado.
-    - El administrador puede consultar la información y generar reportes de reclamos pendientes, deudas y equipos fuera de servicio.
-    - Las notificaciones de deuda se envían al titular asociado al lote.
+
+    - El barrio tiene 150 lotes identificados por un número único.
+    - Cada lote tiene exactamente un titular; un titular puede ser responsable de varios lotes.
+    - Un lote puede tener familiares o inquilinos como residentes adicionales.
+    - Solo el titular o una persona autorizada por él puede presentar reclamos de ese lote.
+    - Los tipos de reclamo son SEGURIDAD, MANTENIMIENTO, CONVIVENCIA y ADMINISTRATIVO.
+    - SEGURIDAD implica prioridad ALTA; MANTENIMIENTO, MEDIA; CONVIVENCIA y ADMINISTRATIVO, BAJA.
+    - Los estados son ABIERTO, ASIGNADO, EN_CURSO, RESUELTO y CERRADO; solamente se avanza al estado siguiente, salvo reapertura permitida.
+    - El vecino puede reabrir el reclamo resuelto dentro de los 5 días; después se cierra si no hay respuesta.
+    - Cada reclamo tiene un único responsable cuando está asignado; ningún empleado puede tener más de 5 reclamos EN_CURSO simultáneamente.
+    - Los reclamos de prioridad alta sin atención durante 24 horas deben escalarse al administrador.
+    - Cada cambio de estado conserva fecha, estado nuevo y observación; los comentarios conservan autor, fecha y texto.
+    - Cada lote recibe una expensa por mes, calculada como presupuesto mensual × coeficiente de participación según superficie.
+    - La fecha de vencimiento de la expensa es el día 10 de cada mes.
+    - A partir del vencimiento se aplica interés punitorio del 3 % mensual sobre el saldo impago.
+    - Los pagos parciales se imputan primero a intereses y luego a capital, comenzando por la expensa más antigua.
+    - Si hay más de tres períodos impagos, el lote se marca moroso y se notifica formalmente al titular; deja de ser moroso al regularizar la deuda.
+    - Los pagos no se eliminan; los errores se corrigen mediante asientos de ajuste.
+    - Los equipos pueden estar OPERATIVO, CON_FALLA, EN_REPARACION o FUERA_DE_SERVICIO.
+    - Una falla de cámara origina una orden de prioridad ALTA; una de luminaria, prioridad MEDIA (normal), que pasa a ALTA cuando hay más de 3 luminarias fallando en el mismo sector.
+    - Una cámara sin funcionar más de 48 horas obliga a informar al administrador.
+    - Una orden de mantenimiento no puede cerrarse sin fecha, técnico y descripción de la reparación.
+    - Toda visita exige autorización previa del vecino, con fecha y horario vigentes; de lo contrario no ingresa.
+    - Las autorizaciones recurrentes de proveedores no pueden superar 30 días.
+    - Un visitante no puede registrar otro ingreso si su egreso anterior no fue registrado.
+    - El administrador puede consultar reportes de reclamos pendientes, morosidad y equipos fuera de servicio.
 
 
 --- Supuestos:
-    - El sistema será utilizado por personal autorizado según su rol.
-    - Los datos de personas, lotes, pagos, equipos y autorizaciones se mantienen actualizados.
-    - Cada persona se identifica de forma única mediante su documento.
-    - Cada lote se identifica de forma única mediante su número.
-    - La superficie de cada lote está registrada y expresada en una unidad uniforme.
-    - La administración define los importes, la tasa de interés y las fechas de vencimiento de las expensas.
-    - Los pagos se registran únicamente para expensas existentes y no pueden superar el saldo sin registrar un ajuste.
-    - Los estados, prioridades, tipos y medios de pago disponibles son definidos previamente por el sistema.
-    - Solo los empleados habilitados pueden ser asignados a reclamos u órdenes de mantenimiento.
-    - Una autorización de ingreso tiene fechas de vigencia y no puede utilizarse fuera de ese período.
-    - La guardia dispone de la información necesaria para validar autorizaciones y registrar los movimientos.
-    - Los reportes se generan con la información registrada en el sistema al momento de la consulta.
+
+    - Los 150 lotes ya existen o se dan de alta durante la configuración inicial.
+    - El DNI identifica de manera única a cada persona y el número identifica a cada lote.
+    - Se utiliza el mismo registro de Persona para residentes, personal y visitantes, aunque solo algunos datos son obligatorios para visitantes.
+    - El titular puede autorizar a familiares e inquilinos a presentar reclamos; la autorización se registra por lote.
+    - Para autorizar visitas se permite operar al titular y a residentes habilitados por él, ya que el enunciado dice «el vecino» sin precisar la facultad.
+    - Un reclamo reabierto vuelve a EN_CURSO y conserva su responsable; si hay que cambiarlo, interviene el administrador.
+    - «Atendido» significa que el reclamo pasó a EN_CURSO y se registró fecha de atención.
+    - Para contar el máximo de cinco se consideran solo reclamos EN_CURSO, tal como indica la consigna.
+    - El coeficiente del lote se obtiene dividiendo su superficie por la suma de superficies de los 150 lotes.
+    - Se toma como fecha de vencimiento el día 10 del mismo mes del período liquidado.
+    - Para prorratear el 3 % mensual se adopta una base de 30 días, con interés simple por días de mora sobre saldo pendiente.
+    - Un período impago es una expensa con saldo de capital o interés pendiente.
+    - Un pago puede distribuirse entre varias expensas mediante imputaciones, sin perder el vínculo con el pago original.
+    - Un ajuste se registra con un importe con signo, fecha y motivo, y no modifica ni borra el registro original.
+    - Los datos de responsables y reparaciones se conservan aunque una orden ya esté cerrada.
+    - La prioridad «normal» de mantenimiento corresponde a MEDIA del enum Prioridad.
+    - Para contar luminarias fallando en un sector se consideran equipos CON_FALLA, EN_REPARACION o FUERA_DE_SERVICIO.
+    - «Sin funcionar» en una cámara comprende esos mismos estados mientras impidan su operación.
+    - Las notificaciones se registran en el sistema; la consigna no exige integrar un proveedor real de correo o mensajería.
+    - Las fechas y horas se consideran en la zona horaria local; una autorización es válida solo dentro de su franja inclusive.
+    - El rol de visitante/proveedor no opera el sistema; el guardia registra sus movimientos.
 
 
 
 --- Relaciones entre clases:
 
-    BarrioCerrado ◆── Lote (Composición)
-    BarrioCerrado ◇── Personal (Agregación)
-    BarrioCerrado ◇── Equipo (Agregación)
-    BarrioCerrado ──> Reclamo (Asociación)
-    BarrioCerrado ──> Expensa (Asociación)
-    BarrioCerrado ..> Reporte (Dependencia)
+    BarrioCerrado ◆── Lote (Composición; 1 a 150)
+    BarrioCerrado ◇── Personal (Agregación; 1 a 0..*)
+    BarrioCerrado ◇── Equipo (Agregación; 1 a 0..*)
+    BarrioCerrado ──> Reclamo (Asociación; 1 a 0..*)
+    BarrioCerrado ──> Administrador (Asociación; 1 a 1)
     Residente ──▷ Persona (Herencia)
     Personal ──▷ Persona (Herencia)
     Visitante ──▷ Persona (Herencia)
@@ -453,46 +540,142 @@ Métodos:
     Guardia ──▷ Personal (Herencia)
     EmpleadoMantenimiento ──▷ Personal (Herencia)
     Proveedor ──▷ Visitante (Herencia)
-    Lote ──> Titular (Asociación)
-    Lote ──> Familiar (Asociación)
-    Lote ──> Inquilino (Asociación)
-    Reclamo ──> Lote (Asociación)
-    Reclamo ──> Residente (Asociación)
-    Reclamo ──> Personal (Asociación)
-    Reclamo ◆── HistorialEstado (Composición)
-    Reclamo ◆── Comentario (Composición)
-    Reclamo ..> TipoReclamo (Dependencia / Enum)
-    Reclamo ──> Prioridad (Asociación con enum)
-    Reclamo ──> EstadoReclamo (Asociación con enum)
-    HistorialEstado ..> EstadoReclamo (Dependencia / Enum)
-    Administrador ──> Reclamo (Asociación)
-    Lote ──> Expensa (Asociación)
-    Expensa ◆── Pago (Composición)
-    Pago ──> MedioPago (Asociación con enum)
-    Pago ◆── AjustePago (Composición)
-    Expensa ──> EstadoExpensa (Asociación con enum)
+    Lote ──> Titular (Cada lote 1 titular; cada titular 1..* lotes)
+    Lote ── Residente (Cada lote 0..* residentes; un residente 0..* lotes)
+    Reclamo ──> Lote (Cada reclamo 1 lote; lote 0..* reclamos)
+    Reclamo ──> Residente (Cada reclamo 1 solicitante; residente 0..* reclamos)
+    Reclamo ──> Personal (Responsable 0..1 hasta ser asignado; empleado 0..* reclamos)
+    Reclamo ◆── HistorialEstado (Un reclamo 0..* registros)
+    Reclamo ◆── Comentario (Un reclamo 0..* comentarios)
+    Comentario ──> Persona (Cada comentario 1 autor)
+    Lote ◆── Expensa (Un lote 0..* expensas; expensa 1 lote)
+    Pago ◆── ImputacionPago (Un pago 1..* imputaciones)
+    ImputacionPago ──> Expensa (Cada imputación corresponde a 1 expensa)
+    Pago ◆── AjustePago (Un pago 0..* ajustes)
     Luminaria ──▷ Equipo (Herencia)
     Camara ──▷ Equipo (Herencia)
-    Equipo ◆── Falla (Composición)
-    Equipo ──> OrdenMantenimiento (Asociación)
-    Equipo ..> EstadoEquipo (Dependencia / Enum)
-    Falla ──> OrdenMantenimiento (Asociación)
-    OrdenMantenimiento ──> EmpleadoMantenimiento (Asociación)
-    Administrador ──> OrdenMantenimiento (Asociación)
-    Guardia ──> Falla (Asociación)
-    Residente ──> Falla (Asociación)
-    Residente ──> AutorizacionIngreso (Asociación)
-    AutorizacionIngreso ──> Visitante (Asociación)
-    AutorizacionIngreso ──> Lote (Asociación)
+    Equipo ──> Falla (Un equipo 0..* fallas)
+    Equipo ──> OrdenMantenimiento (Un equipo 0..* órdenes)
+    Falla ──> OrdenMantenimiento (Una falla 0..1 orden; orden 1 falla)
+    OrdenMantenimiento ──> EmpleadoMantenimiento (Cada orden 1 técnico asignado)
+    Administrador ──> OrdenMantenimiento (Cada orden 1 administrador creador)
+    Falla ──> Persona (Un reportante, restringido a Residente o Guardia)
+    Residente ──> AutorizacionIngreso (Residente 0..* autorizaciones)
+    AutorizacionIngreso ──> Visitante (Cada autorización 1 visitante)
+    AutorizacionIngreso ──> Lote (Cada autorización 1 lote)
     AutorizacionRecurrente ──▷ AutorizacionIngreso (Herencia)
-    AutorizacionIngreso ──> RegistroIngreso (Asociación)
-    RegistroIngreso ──> Guardia (Asociación)
-    RegistroIngreso ──> Visitante (Asociación)
-    Notificacion ──> Titular (Asociación)
-    Notificacion ──> Lote (Asociación)
+    AutorizacionIngreso ──> RegistroIngreso (Una autorización 0..* ingresos, válidos según permiso)
+    RegistroIngreso ──> Guardia (Cada registro 1 guardia)
+    Notificacion ──> Persona (Cada aviso 1 destinatario)
+    Notificacion ──> Lote (Avisos de morosidad vinculados a 1 lote)
     Administrador ..> Reporte (Dependencia)
-    Reporte ..> Reclamo (Dependencia)
-    Reporte ..> Expensa (Dependencia)
-    Reporte ..> Equipo (Dependencia)
-    Reclamo ..> TipoReclamo (Dependencia / Enum)
-    Equipo ..> EstadoEquipo (Dependencia / Enum)
+    Reporte ..> Reclamo, Lote, Expensa, Equipo (Dependencias)
+    Los enums son tipos de atributos, no entidades ni clases dependientes por composición.
+
+
+
+--- Diagramas de caso de uso:
+
+    Dibujar el límite del sistema «Gestión Barrio Los Aromos» y los actores fuera de él.
+    Dibujar al actor Residente, con Titular y ResidenteAutorizado como especializaciones si queremos mostrar esa diferencia.
+    Conectar los casos de uso con los actores indicados. No conectar clases del dominio como actores.
+
+    - Residente autorizado / Titular: Presentar reclamo, Consultar estado del reclamo, Agregar comentario, Reabrir reclamo resuelto, Autorizar visita, Registrar falla.
+    - Titular: Consultar expensas del lote.
+    - Administrador: Asignar reclamo, Actualizar/cerrar reclamo, Emitir expensas, Registrar pago, Ajustar pago, Generar orden de mantenimiento, Consultar estado de equipo, Emitir reportes.
+    - Guardia: Registrar falla, Verificar autorización de ingreso, Registrar ingreso, Registrar egreso, Consultar estado de equipo.
+    - Empleado de mantenimiento: Actualizar reclamo asignado, Registrar reparación y cerrar orden.
+
+    Relaciones a mostrar:
+    - «Registrar ingreso» <<include>> «Verificar autorización de ingreso»: la validación es obligatoria.
+    - «Registrar pago» <<include>> «Calcular saldo e intereses»: se calcula lo que corresponde antes de imputar el pago.
+    - «Cerrar orden de mantenimiento» <<include>> «Registrar reparación»: no se puede cerrar sin esos datos.
+    - «Reabrir reclamo resuelto» <<extend>> «Consultar estado del reclamo»: comportamiento opcional si está resuelto y aún dentro de los 5 días.
+    - «Registrar autorización recurrente» como especialización de «Autorizar visita», o como un caso separado asociado al Residente, aclarando que es para proveedores y tiene límite de 30 días.
+    - Para los reportes, podemos dibujar «Emitir reportes» y especializarlo en «Reclamos pendientes», «Morosidad por lote» y «Equipos fuera de servicio».
+
+
+
+--- Diagramas de secuencia:
+
+    Secuencia 1. Registrar ingreso de visitante (con flujo alternativo/de error).
+    Objetos: Guardia (actor), SistemaIngreso (controlador propuesto para el diagrama final), Visitante, AutorizacionIngreso, RegistroIngreso.
+    1. Guardia -> SistemaIngreso: solicitarIngreso(dni, fechaHora).
+    2. SistemaIngreso -> AutorizacionIngreso: buscarAutorizacionVigente(dni, fechaHora).
+    3. AutorizacionIngreso --> SistemaIngreso: autorización o null.
+    4. Fragmento alt:
+       [autorización inexistente o vencida] SistemaIngreso --> Guardia: ingreso denegado; no crear registro.
+       [autorización válida] SistemaIngreso -> RegistroIngreso: existeIngresoAbierto(dni).
+    5. Fragmento alt dentro de la autorización válida:
+       [ya está dentro] SistemaIngreso --> Guardia: segundo ingreso rechazado.
+       [no está dentro] SistemaIngreso -> RegistroIngreso: crearRegistro(autorización, guardia, fechaHora); devuelve registro.
+    6. SistemaIngreso --> Guardia: ingreso registrado.
+    7. Luego, en otro momento, Guardia -> SistemaIngreso: registrarEgreso(registro, fechaHora), SistemaIngreso -> RegistroIngreso: registrarEgreso(fechaHora).
+    Nota: SistemaIngreso es controlador incorporado en el rediseño final, no una entidad del mundo real. Si no se incorpora, se pueden enviar los mensajes desde Guardia pero queda más acoplado.
+
+    Secuencia 2. Registrar pago de expensas (con loop e interés por mora).
+    Objetos: Administrador (actor), GestorExpensas (controlador propuesto), Lote, Expensa, Pago, ImputacionPago, AjustePago.
+    1. Administrador -> GestorExpensas: registrarPago(lote, fecha, importe, medio).
+    2. GestorExpensas -> Lote: obtenerExpensasPendientesOrdenadas().
+    3. Lote --> GestorExpensas: lista ordenada del período más antiguo al más nuevo.
+    4. Fragmento loop [mientras haya importe disponible y deuda]:
+       GestorExpensas -> Expensa: calcularInteresMora(fecha).
+       Expensa --> GestorExpensas: interés pendiente.
+       GestorExpensas -> Expensa: imputarPago(importeDisponible, fecha).
+       Expensa --> GestorExpensas: importe aplicado a interés y a capital.
+       GestorExpensas -> ImputacionPago: crear(expensa, interésAplicado, capitalAplicado).
+    5. GestorExpensas -> Pago: registrar imputaciones.
+    6. GestorExpensas -> Lote: actualizarMorosidad().
+    7. GestorExpensas --> Administrador: recibo y saldos actualizados.
+    8. Fragmento alt [importe inválido o sin deuda]: rechazar operación sin registrar pago.
+    Nota: conviene mostrar cómo se distribuye el importe entre intereses y capital, y que no se elimina un pago si después hay que ajustarlo.
+
+
+
+--- Aplicación de patrones SOLID:
+
+    1. SRP - Principio de responsabilidad única.
+    Problema detectado: Administrador realizaba asignaciones, cálculos de expensas, gestión de pagos y generación de reportes, acumulando varias responsabilidades distintas.
+    Decisión tomada: separar la lógica de expensas en GestorExpensas, la de acceso en SistemaIngreso y los reportes en Reporte; Administrador representa al empleado que inicia las operaciones.
+    Clases involucradas: Administrador, GestorExpensas, SistemaIngreso, Reporte, Expensa.
+    Ventaja: cambios en pagos, accesos o reportes no obligan a modificar una clase administrativa enorme.
+
+    2. OCP - Principio abierto/cerrado.
+    Problema detectado: la prioridad de órdenes depende del tipo de equipo; si el administrador usa muchos if por tipo, cada equipo nuevo obligaría a cambiar esa lógica.
+    Decisión tomada: declarar determinarPrioridadFalla(...) en Equipo y sobrescribirlo en Camara y Luminaria. El administrador pide la prioridad al propio equipo.
+    Clases involucradas: Equipo, Camara, Luminaria, OrdenMantenimiento.
+    Ventaja: se pueden agregar otros tipos de equipo con sus reglas sin modificar la lógica general de creación de órdenes.
+
+    3. LSP - Principio de sustitución de Liskov.
+    Problema detectado: una autorización recurrente no se valida igual que una autorización de un solo día, pero el sistema debe tratar a ambas como autorizaciones válidas.
+    Decisión tomada: AutorizacionRecurrente hereda de AutorizacionIngreso y sobrescribe esValida(fechaHora), respetando el contrato booleano de vigencia y agregando fechas, días y límite de 30 días.
+    Clases involucradas: AutorizacionIngreso, AutorizacionRecurrente, SistemaIngreso.
+    Ventaja: el control de acceso consulta cualquier autorización por el mismo método, sin preguntar si se trata de un proveedor habitual.
+
+
+
+--- Aplicación de patrones GRASP:
+
+    1. Experto en información.
+    Problema detectado: no corresponde que el administrador calcule directamente saldos, intereses y estados de todas las expensas.
+    Decisión tomada: Expensa calcula sus saldos, intereses y estado utilizando su fecha de vencimiento y las imputaciones asociadas; Lote calcula su coeficiente y morosidad con sus expensas.
+    Clases involucradas: Expensa, Lote, ImputacionPago.
+    Ventaja: los cálculos están cerca de los datos que necesitan y no se duplican.
+
+    2. Creador.
+    Problema detectado: debemos decidir quién crea los objetos que forman parte de otros y mantienen su historial.
+    Decisión tomada: Reclamo crea sus HistorialEstado y Comentario; Pago incorpora las ImputacionPago; OrdenMantenimiento guarda los datos de reparación para su cierre.
+    Clases involucradas: Reclamo, HistorialEstado, Comentario, Pago, ImputacionPago, OrdenMantenimiento.
+    Ventaja: cada objeto mantiene correctamente sus propios registros asociados.
+
+    3. Controlador.
+    Problema detectado: las operaciones de registrar ingreso y registrar pago coordinan varios objetos y no deberían resolverse desde las entidades de presentación ni en una sola clase Administrador.
+    Decisión tomada: agregar SistemaIngreso y GestorExpensas para recibir las operaciones e interactuar con las clases del dominio.
+    Clases involucradas: SistemaIngreso, GestorExpensas, AutorizacionIngreso, RegistroIngreso, Lote, Expensa, Pago.
+    Ventaja: centraliza cada flujo de negocio sin sobrecargar a Guardia o Administrador.
+
+    4. Polimorfismo.
+    Problema detectado: existen reglas diferentes de validación de permisos y de prioridad de mantenimiento según el subtipo concreto.
+    Decisión tomada: sobrescribir esValida(...) en AutorizacionRecurrente y determinarPrioridadFalla(...) en Camara y Luminaria.
+    Clases involucradas: AutorizacionIngreso, AutorizacionRecurrente, Equipo, Camara, Luminaria.
+    Ventaja: se evitan estructuras condicionales repetidas y se mantiene una interfaz de uso común.
