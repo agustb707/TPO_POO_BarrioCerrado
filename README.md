@@ -2,7 +2,7 @@
 
 ## Descripción del proyecto
 
-Este proyecto corresponde a la **Propuesta A: Gestión de un barrio cerrado** del Trabajo Práctico Obligatorio de Programación Orientada a Objetos.
+Este proyecto corresponde a la **Propuesta A: Gestión de un barrio cerrado** del TPO de Programación Orientada a Objetos.
 
 El barrio cerrado «Los Aromos» cuenta con 150 lotes. Actualmente, parte de la información se administra mediante planillas y mensajes. El objetivo es diseñar un sistema que permita centralizar y organizar la gestión de los lotes, sus residentes, los reclamos, las expensas, el mantenimiento de equipos, el ingreso de visitantes y los reportes de administración.
 
@@ -14,9 +14,8 @@ El trabajo se divide en dos etapas:
 
 ## Integrantes
 
-- [Nombre y apellido – integrante 1]
-- [Nombre y apellido – integrante 2]
-- [Nombre y apellido – integrante 3, si corresponde]
+- Agustín Barbero -- LU 1218704
+- Milena Dawidowicz -- LU 1218685
 
 ## Funcionalidades previstas
 
