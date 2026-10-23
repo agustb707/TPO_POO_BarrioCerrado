@@ -2,49 +2,366 @@
 
 --- Enunciado:
 
-    Contexto. Un barrio cerrado con 150 lotes necesita un sistema para ordenar la relación
+    Un barrio cerrado con 150 lotes necesita un sistema para ordenar la relación
     entre la administración y los vecinos, que hoy se resuelve con planillas y mensajes sueltos.
 
 
 
 --- Actores:
 
-    BarrioCerrado
-        - Lote
-        - Persona (abstracta)
-            - Residente (abstracta)
-                - Titular
-                - Familiar
-                - Inquilino
-            - Personal (abstracta)
-                - Administrador
-                - Guardia
-                - EmpleadoMantenimiento
-            - Visitante
-                - Proveedor
-        - Reclamo
-            - Prioridad (enum)
-            - TipoReclamo (enum)
-            - EstadoReclamo (enum)
-            - HistorialEstado
-            - Comentario
-        - Expensa
-            - EstadoExpensa (enum)
-            - Pago
-                - MedioPago (enum)
-            - AjustePago
-        - Equipo (abstracta)
-            - EstadoEquipo (enum)
-            - Luminaria
-            - Camara
-        - Falla
-        - OrdenMantenimiento
-        - AutorizacionIngreso
-            - AutorizacionRecurrente
-        - RegistroIngreso
-        - Notificacion
-        - Reporte
+1. BarrioCerrado
+Clase: BarrioCerrado
 
+Atributos:
+- nombre: String
+- lotes: List<Lote>
+- personal: List<Personal>
+- reclamos: List<Reclamo>
+- equipos: List<Equipo>
+- administrador: Administrador
+Métodos:
+- agregarLote(lote: Lote): void
+- buscarLote(numero: int): Lote
+- agregarPersonal(personal: Personal): void
+- registrarEquipo(equipo: Equipo): void
+2. Lote
+Clase: Lote
+
+Atributos:
+- numeroLote: int
+- superficie: double
+- titular: Titular
+- residentes: List<Residente>
+- expensas: List<Expensa>
+Métodos:
+- asignarTitular(titular: Titular): void
+- agregarResidente(residente: Residente): void
+- quitarResidente(residente: Residente): void
+- obtenerExpensasPendientes(): List<Expensa>
+- calcularDeudaTotal(): double
+3. Persona y sus subclases
+Clase abstracta: Persona
+
+Atributos:
+- nombre: String
+- apellido: String
+- dni: String
+- telefono: String
+- email: String
+Métodos:
+
+- obtenerNombreCompleto(): String
+Clase abstracta: Residente extends Persona
+Atributos:
+
+- lotes: List<Lote>
+
+Métodos:
+- presentarReclamo(lote: Lote, tipo: TipoReclamo, descripcion: String, prioridad: Prioridad): Reclamo
+- comentarReclamo(reclamo: Reclamo, texto: String): void
+- registrarFalla(equipo: Equipo, descripcion: String): Falla
+- autorizarIngreso(visitante: Visitante, lote: Lote, fecha: LocalDate, horaDesde: LocalTime, horaHasta: LocalTime): AutorizacionIngreso
+Clase: Titular extends Residente
+
+Atributos: Ninguno adicional.
+
+Métodos:
+
+- consultarExpensas(lote: Lote): List<Expensa>
+
+Clase: Familiar extends Residente
+
+Atributos: Ninguno adicional.
+
+Métodos: Hereda los métodos de Residente.
+
+Clase: Inquilino extends Residente
+
+Atributos: Ninguno adicional.
+
+Métodos: Hereda los métodos de Residente.
+Clase abstracta: Personal extends Persona
+Atributos:
+- legajo: int
+- fechaIngreso: LocalDate
+Métodos:
+
+- comentarReclamo(reclamo: Reclamo, texto: String): void
+
+Clase: Administrador extends Personal
+
+Atributos: Ninguno adicional.
+
+Métodos:
+- asignarReclamo(reclamo: Reclamo, empleado: EmpleadoMantenimiento): void
+- emitirExpensas(periodo: YearMonth): void
+- generarOrdenMantenimiento(falla: Falla, empleado: EmpleadoMantenimiento, prioridad: Prioridad, descripcion: String): OrdenMantenimiento
+- generarReporteReclamosPendientes(): Reporte
+- generarReporteMorosidad(): Reporte
+- generarReporteEquiposFueraServicio(): Reporte
+Clase: Guardia extends Personal
+
+Atributos:
+- turno: Turno
+- puesto: Puesto
+Métodos:
+- registrarFalla(equipo: Equipo, descripcion: String): Falla
+- consultarAutorizacion(visitante: Visitante, fechaHora: LocalDateTime): AutorizacionIngreso
+- registrarIngreso(autorizacion: AutorizacionIngreso): RegistroIngreso
+- registrarEgreso(registro: RegistroIngreso): void
+Clase: EmpleadoMantenimiento extends Personal
+
+Atributos:
+
+- especialidad: Especialidad
+
+Métodos:
+
+- cerrarOrden(orden: OrdenMantenimiento): void
+Clase: Visitante extends Persona
+Atributos: Ninguno adicional.
+
+Métodos: Hereda los métodos de Persona.
+
+Clase: Proveedor extends Visitante
+
+Atributos: Ninguno adicional.
+
+Métodos: Hereda los métodos de Visitante.
+Enumeraciones de personal
+Enum: Turno
+- MANANA
+- TARDE
+- NOCHE
+Enum: Puesto
+- PORTERIA
+- RONDA
+- MONITOREO
+Enum: Especialidad
+- ELECTRICIDAD
+- PLOMERIA
+- JARDINERIA
+4. Reclamos
+Clase: Reclamo
+
+Atributos:
+- numero: int
+- fecha: LocalDate
+- tipo: TipoReclamo
+- descripcion: String
+- prioridad: Prioridad
+- estado: EstadoReclamo
+- lote: Lote
+- residente: Residente
+- empleadoAsignado: EmpleadoMantenimiento
+- historial: List<HistorialEstado>
+- comentarios: List<Comentario>
+Métodos:
+- asignarEmpleado(empleado: EmpleadoMantenimiento): void
+- cambiarEstado(nuevoEstado: EstadoReclamo, observacion: String): void
+- agregarComentario(autor: Persona, texto: String): void
+- consultarHistorial(): List<HistorialEstado>
+- estaPendiente(): boolean
+Clase: HistorialEstado
+
+Atributos:
+- fechaCambio: LocalDateTime
+- estadoNuevo: EstadoReclamo
+- observacion: String
+Métodos: Ninguno adicional.
+
+Clase: Comentario
+
+Atributos:
+- fecha: LocalDateTime
+- texto: String
+- autor: Persona
+Métodos: Ninguno adicional.
+Enumeraciones de reclamos
+Enum: Prioridad
+- BAJA
+- MEDIA
+- ALTA
+Enum: TipoReclamo
+- SEGURIDAD
+- MANTENIMIENTO
+- CONVIVENCIA
+- OTRO
+Enum: EstadoReclamo
+- PENDIENTE
+- ASIGNADO
+- EN_PROCESO
+- RESUELTO
+- CERRADO
+5. Expensas y pagos
+Clase: Expensa
+
+Atributos:
+- numero: int
+- periodo: YearMonth
+- importe: double
+- fechaVencimiento: LocalDate
+- estado: EstadoExpensa
+- lote: Lote
+- pagos: List<Pago>
+Métodos:
+- registrarPago(pago: Pago): void
+- calcularTotalPagado(): double
+- calcularSaldoPendiente(): double
+- calcularInteresMora(fechaPago: LocalDate): double
+- actualizarEstado(): void
+- estaVencida(): boolean
+Clase: Pago
+
+Atributos:
+- fecha: LocalDate
+- importe: double
+- medioPago: MedioPago
+- interesMora: double
+Métodos:
+
+- calcularImporteTotal(): double
+Enumeraciones de expensas
+Enum: EstadoExpensa
+- PENDIENTE
+- PARCIALMENTE_PAGADA
+- PAGADA
+- VENCIDA
+Enum: MedioPago
+- EFECTIVO
+- TRANSFERENCIA
+- TARJETA
+Ajuste de tu diseño: No agregaría la clase AjustePago. La consigna solamente exige calcular intereses por mora, por lo que alcanza con registrar el interés aplicado en cada pago.
+6. Equipos
+Clase abstracta: Equipo
+
+Atributos:
+- codigo: String
+- sector: Sector
+- fechaInstalacion: LocalDate
+- estado: EstadoEquipo
+- ordenes: List<OrdenMantenimiento>
+Métodos:
+- cambiarEstado(nuevoEstado: EstadoEquipo): void
+- agregarOrden(orden: OrdenMantenimiento): void
+- obtenerHistorialMantenimiento(): List<OrdenMantenimiento>
+- estaFueraDeServicio(): boolean
+Clase: Luminaria extends Equipo
+
+Atributos:
+- tipoLampara: TipoLuminaria
+- potencia: double
+Métodos: Hereda los métodos de Equipo.
+
+Clase: Camara extends Equipo
+
+Atributos:
+- resolucion: Resolucion
+- cantidadDiasGrabacion: int
+Métodos: Hereda los métodos de Equipo.
+Enumeraciones de equipos
+Enum: Sector
+- CALLES_INTERNAS
+- ACCESOS
+- ESPACIOS_COMUNES
+Enum: EstadoEquipo
+- OPERATIVO
+- FUERA_DE_SERVICIO
+- EN_MANTENIMIENTO
+Enum: TipoLuminaria
+- LED
+- HALOGENA
+- FLUORESCENTE
+Enum: Resolucion
+- HD
+- FULL_HD
+- UHD_4K
+7. Fallas y órdenes de mantenimiento
+Clase: Falla
+
+Atributos:
+- numero: int
+- fechaRegistro: LocalDateTime
+- descripcion: String
+- equipo: Equipo
+- reportante: Persona
+- ordenMantenimiento: OrdenMantenimiento
+Métodos:
+
+- asociarOrden(orden: OrdenMantenimiento): void
+
+Clase: OrdenMantenimiento
+
+Atributos:
+- numero: int
+- fechaApertura: LocalDate
+- fechaCierre: LocalDate
+- prioridad: Prioridad
+- descripcionTrabajo: String
+- equipo: Equipo
+- falla: Falla
+- empleadoAsignado: EmpleadoMantenimiento
+- administrador: Administrador
+Métodos:
+- asignarEmpleado(empleado: EmpleadoMantenimiento): void
+- cerrarOrden(fecha: LocalDate): void
+- estaAbierta(): boolean
+Corrección importante: En tu propuesta original pusiste fechaApertura, fechaCierre, prioridad y administrador dentro de Falla. Esos datos corresponden a OrdenMantenimiento, según la consigna.
+8. Autorizaciones de ingreso
+Clase: AutorizacionIngreso
+
+Atributos:
+- numero: int
+- visitante: Visitante
+- residenteAutorizante: Residente
+- lote: Lote
+- fechaAutorizada: LocalDate
+- horaDesde: LocalTime
+- horaHasta: LocalTime
+Métodos:
+- esValida(fechaHora: LocalDateTime): boolean
+- correspondeAVisitante(visitante: Visitante): boolean
+Clase: AutorizacionRecurrente extends AutorizacionIngreso
+
+Atributos:
+- fechaInicio: LocalDate
+- fechaFin: LocalDate
+- diasPermitidos: Set<DiaSemana>
+Métodos:
+
+- esValida(fechaHora: LocalDateTime): boolean
+
+Sobrescribe esValida() para comprobar el rango de fechas, los días y la franja horaria.
+
+Enum: DiaSemana
+- LUNES
+- MARTES
+- MIERCOLES
+- JUEVES
+- VIERNES
+- SABADO
+- DOMINGO
+9. Registro de ingreso
+Clase: RegistroIngreso
+
+Atributos:
+- numero: int
+- autorizacion: AutorizacionIngreso
+- guardia: Guardia
+- fechaHoraIngreso: LocalDateTime
+- fechaHoraEgreso: LocalDateTime
+Métodos:
+- registrarEgreso(fechaHora: LocalDateTime): void
+- estaDentro(): boolean
+10. Reportes
+Clase: Reporte
+
+Atributos: Ninguno obligatorio, porque representa el resultado de una consulta.
+
+Métodos:
+- generarReclamosPendientes(reclamos: List<Reclamo>): List<Reclamo>
+- generarMorosidadPorLote(lotes: List<Lote>): Map<Lote, Double>
+- generarEquiposFueraServicio(equipos: List<Equipo>): List<Equipo>
 
 
 --- Requerimientos funcionales:
