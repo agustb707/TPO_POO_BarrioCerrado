@@ -400,10 +400,39 @@ Métodos:
 
 
 --- Reglas de negocio:
-
+    - El barrio cerrado está compuesto por 150 lotes identificados de forma única.
+    - Cada lote tiene un único titular y puede tener cero o más familiares e inquilinos residentes.
+    - Una persona puede estar asociada a un lote como titular, familiar o inquilino, según corresponda.
+    - Los titulares son responsables del pago de las expensas de sus lotes.
+    - Las expensas se generan mensualmente y el importe se calcula en función de la superficie del lote.
+    - Un lote puede registrar pagos totales o parciales y ajustes posteriores sobre esos pagos.
+    - Los pagos atrasados generan intereses según una tasa definida por la administración.
+    - Todo reclamo pertenece a un lote y es realizado por un residente registrado.
+    - Cada reclamo puede tener un empleado asignado, una prioridad, un estado, comentarios e historial de cambios.
+    - Los estados de reclamos y expensas se modifican mediante valores previamente definidos por el sistema.
+    - Las cámaras y luminarias son equipos del barrio y pueden registrar fallas y órdenes de mantenimiento.
+    - Una orden de mantenimiento puede ser asignada a un empleado de mantenimiento y registrar la reparación realizada.
+    - Los visitantes deben contar con una autorización vigente para ingresar al barrio.
+    - Las autorizaciones recurrentes permiten el ingreso de proveedores durante varios días.
+    - La guardia registra la entrada y salida de cada visitante autorizado.
+    - El administrador puede consultar la información y generar reportes de reclamos pendientes, deudas y equipos fuera de servicio.
+    - Las notificaciones de deuda se envían al titular asociado al lote.
 
 
 --- Supuestos:
+    - El sistema será utilizado por personal autorizado según su rol.
+    - Los datos de personas, lotes, pagos, equipos y autorizaciones se mantienen actualizados.
+    - Cada persona se identifica de forma única mediante su documento.
+    - Cada lote se identifica de forma única mediante su número.
+    - La superficie de cada lote está registrada y expresada en una unidad uniforme.
+    - La administración define los importes, la tasa de interés y las fechas de vencimiento de las expensas.
+    - Los pagos se registran únicamente para expensas existentes y no pueden superar el saldo sin registrar un ajuste.
+    - Los estados, prioridades, tipos y medios de pago disponibles son definidos previamente por el sistema.
+    - Solo los empleados habilitados pueden ser asignados a reclamos u órdenes de mantenimiento.
+    - Una autorización de ingreso tiene fechas de vigencia y no puede utilizarse fuera de ese período.
+    - La guardia dispone de la información necesaria para validar autorizaciones y registrar los movimientos.
+    - Los reportes se generan con la información registrada en el sistema al momento de la consulta.
+
 
 
 --- Relaciones entre clases:
