@@ -575,10 +575,7 @@
 
 
 --- Diagramas de caso de uso:
-
-    Dibujar el límite del sistema «Gestión Barrio Los Aromos» y los actores fuera de él.
-    Dibujar al actor Residente, con Titular y ResidenteAutorizado como especializaciones si queremos mostrar esa diferencia.
-    Conectar los casos de uso con los actores indicados. No conectar clases del dominio como actores.
+    El diagrama de casos de uso se puede visualizar dentro de la carpeta Docs, siendo el archivo casodeusoPOO.drawio.png
 
     - Residente autorizado / Titular: Presentar reclamo, Consultar estado del reclamo, Agregar comentario, Reabrir reclamo resuelto, Autorizar visita, Registrar falla.
     - Titular: Consultar expensas del lote.
@@ -586,13 +583,11 @@
     - Guardia: Registrar falla, Verificar autorización de ingreso, Registrar ingreso, Registrar egreso, Consultar estado de equipo.
     - Empleado de mantenimiento: Actualizar reclamo asignado, Registrar reparación y cerrar orden.
 
-    Relaciones a mostrar:
+    Relaciones:
     - «Registrar ingreso» <<include>> «Verificar autorización de ingreso»: la validación es obligatoria.
     - «Registrar pago» <<include>> «Calcular saldo e intereses»: se calcula lo que corresponde antes de imputar el pago.
     - «Cerrar orden de mantenimiento» <<include>> «Registrar reparación»: no se puede cerrar sin esos datos.
     - «Reabrir reclamo resuelto» <<extend>> «Consultar estado del reclamo»: comportamiento opcional si está resuelto y aún dentro de los 5 días.
-    - «Registrar autorización recurrente» como especialización de «Autorizar visita», o como un caso separado asociado al Residente, aclarando que es para proveedores y tiene límite de 30 días.
-    - Para los reportes, podemos dibujar «Emitir reportes» y especializarlo en «Reclamos pendientes», «Morosidad por lote» y «Equipos fuera de servicio».
 
 
 
