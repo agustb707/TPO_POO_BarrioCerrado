@@ -432,6 +432,57 @@
     - generarMorosidadPorLote(lotes: List<Lote>): Map<Lote, double>
     - generarEquiposFueraServicio(equipos: List<Equipo>): List<Equipo>
 
+--- Relaciones entre clases:
+
+    BarrioCerrado ◆── Lote (Composición; 1 a 150)
+    BarrioCerrado ◇── Personal (Agregación; 1 a 0..*)
+    BarrioCerrado ◇── Equipo (Agregación; 1 a 0..*)
+    BarrioCerrado ──> Reclamo (Asociación; 1 a 0..*)
+    BarrioCerrado ──> Administrador (Asociación; 1 a 1)
+    Residente ──▷ Persona (Herencia)
+    Personal ──▷ Persona (Herencia)
+    Visitante ──▷ Persona (Herencia)
+    Titular ──▷ Residente (Herencia)
+    Familiar ──▷ Residente (Herencia)
+    Inquilino ──▷ Residente (Herencia)
+    Administrador ──▷ Personal (Herencia)
+    Guardia ──▷ Personal (Herencia)
+    EmpleadoMantenimiento ──▷ Personal (Herencia)
+    Proveedor ──▷ Visitante (Herencia)
+    Lote ──> Titular (Cada lote 1 titular; cada titular 1..* lotes)
+    Lote ── Residente (Cada lote 0..* residentes; un residente 0..* lotes)
+    Reclamo ──> Lote (Cada reclamo 1 lote; lote 0..* reclamos)
+    Reclamo ──> Residente (Cada reclamo 1 solicitante; residente 0..* reclamos)
+    Reclamo ──> Personal (Responsable 0..1 hasta ser asignado; empleado 0..* reclamos)
+    Reclamo ◆── HistorialEstado (Un reclamo 0..* registros)
+    Reclamo ◆── Comentario (Un reclamo 0..* comentarios)
+    Comentario ──> Persona (Cada comentario 1 autor)
+    Lote ◆── Expensa (Un lote 0..* expensas; expensa 1 lote)
+    Pago ◆── ImputacionPago (Un pago 1..* imputaciones)
+    ImputacionPago ──> Expensa (Cada imputación corresponde a 1 expensa)
+    Pago ◆── AjustePago (Un pago 0..* ajustes)
+    Luminaria ──▷ Equipo (Herencia)
+    Camara ──▷ Equipo (Herencia)
+    Equipo ──> Falla (Un equipo 0..* fallas)
+    Equipo ──> OrdenMantenimiento (Un equipo 0..* órdenes)
+    Falla ──> OrdenMantenimiento (Una falla 0..1 orden; orden 1 falla)
+    OrdenMantenimiento ──> EmpleadoMantenimiento (Cada orden 1 técnico asignado)
+    Administrador ──> OrdenMantenimiento (Cada orden 1 administrador creador)
+    Falla ──> Persona (Un reportante, restringido a Residente o Guardia)
+    Residente ──> AutorizacionIngreso (Residente 0..* autorizaciones)
+    AutorizacionIngreso ──> Visitante (Cada autorización 1 visitante)
+    AutorizacionIngreso ──> Lote (Cada autorización 1 lote)
+    AutorizacionRecurrente ──▷ AutorizacionIngreso (Herencia)
+    AutorizacionIngreso ──> RegistroIngreso (Una autorización 0..* ingresos, válidos según permiso)
+    RegistroIngreso ──> Guardia (Cada registro 1 guardia)
+    Notificacion ──> Persona (Cada aviso 1 destinatario)
+    Notificacion ──> Lote (Avisos de morosidad vinculados a 1 lote)
+    Administrador ..> Reporte (Dependencia)
+    Reporte ..> Reclamo, Lote, Expensa, Equipo (Dependencias)
+    Los enums son tipos de atributos, no entidades ni clases dependientes por composición.
+
+Diagrama de clases inicial:
+Se puede encontrar el diagrama inicial de clases dentro de la carpeta uml dentro de la carpeta Docs, con el nombre clasesUML.png
 
 --- Requerimientos funcionales:
 
@@ -522,60 +573,8 @@
     - El rol de visitante/proveedor no opera el sistema; el guardia registra sus movimientos.
 
 
-
---- Relaciones entre clases:
-
-    BarrioCerrado ◆── Lote (Composición; 1 a 150)
-    BarrioCerrado ◇── Personal (Agregación; 1 a 0..*)
-    BarrioCerrado ◇── Equipo (Agregación; 1 a 0..*)
-    BarrioCerrado ──> Reclamo (Asociación; 1 a 0..*)
-    BarrioCerrado ──> Administrador (Asociación; 1 a 1)
-    Residente ──▷ Persona (Herencia)
-    Personal ──▷ Persona (Herencia)
-    Visitante ──▷ Persona (Herencia)
-    Titular ──▷ Residente (Herencia)
-    Familiar ──▷ Residente (Herencia)
-    Inquilino ──▷ Residente (Herencia)
-    Administrador ──▷ Personal (Herencia)
-    Guardia ──▷ Personal (Herencia)
-    EmpleadoMantenimiento ──▷ Personal (Herencia)
-    Proveedor ──▷ Visitante (Herencia)
-    Lote ──> Titular (Cada lote 1 titular; cada titular 1..* lotes)
-    Lote ── Residente (Cada lote 0..* residentes; un residente 0..* lotes)
-    Reclamo ──> Lote (Cada reclamo 1 lote; lote 0..* reclamos)
-    Reclamo ──> Residente (Cada reclamo 1 solicitante; residente 0..* reclamos)
-    Reclamo ──> Personal (Responsable 0..1 hasta ser asignado; empleado 0..* reclamos)
-    Reclamo ◆── HistorialEstado (Un reclamo 0..* registros)
-    Reclamo ◆── Comentario (Un reclamo 0..* comentarios)
-    Comentario ──> Persona (Cada comentario 1 autor)
-    Lote ◆── Expensa (Un lote 0..* expensas; expensa 1 lote)
-    Pago ◆── ImputacionPago (Un pago 1..* imputaciones)
-    ImputacionPago ──> Expensa (Cada imputación corresponde a 1 expensa)
-    Pago ◆── AjustePago (Un pago 0..* ajustes)
-    Luminaria ──▷ Equipo (Herencia)
-    Camara ──▷ Equipo (Herencia)
-    Equipo ──> Falla (Un equipo 0..* fallas)
-    Equipo ──> OrdenMantenimiento (Un equipo 0..* órdenes)
-    Falla ──> OrdenMantenimiento (Una falla 0..1 orden; orden 1 falla)
-    OrdenMantenimiento ──> EmpleadoMantenimiento (Cada orden 1 técnico asignado)
-    Administrador ──> OrdenMantenimiento (Cada orden 1 administrador creador)
-    Falla ──> Persona (Un reportante, restringido a Residente o Guardia)
-    Residente ──> AutorizacionIngreso (Residente 0..* autorizaciones)
-    AutorizacionIngreso ──> Visitante (Cada autorización 1 visitante)
-    AutorizacionIngreso ──> Lote (Cada autorización 1 lote)
-    AutorizacionRecurrente ──▷ AutorizacionIngreso (Herencia)
-    AutorizacionIngreso ──> RegistroIngreso (Una autorización 0..* ingresos, válidos según permiso)
-    RegistroIngreso ──> Guardia (Cada registro 1 guardia)
-    Notificacion ──> Persona (Cada aviso 1 destinatario)
-    Notificacion ──> Lote (Avisos de morosidad vinculados a 1 lote)
-    Administrador ..> Reporte (Dependencia)
-    Reporte ..> Reclamo, Lote, Expensa, Equipo (Dependencias)
-    Los enums son tipos de atributos, no entidades ni clases dependientes por composición.
-
-
-
 --- Diagramas de caso de uso:
-    El diagrama de casos de uso se puede visualizar dentro de la carpeta Docs, siendo el archivo casodeusoPOO.drawio.png
+    El diagrama de casos de uso se puede visualizar dentro de la carpeta UML dentro de la carpeta Docs, siendo el archivo casodeusoPOO.drawio.png
 
     - Residente autorizado / Titular: Presentar reclamo, Consultar estado del reclamo, Agregar comentario, Reabrir reclamo resuelto, Autorizar visita, Registrar falla.
     - Titular: Consultar expensas del lote.
@@ -592,6 +591,7 @@
 
 
 --- Diagramas de secuencia:
+Los diagramas de secuencia se pueden encontrar dentro de la carpeta uml dentro de la carpeta Docs, con el nombre DiagramaDeSecuencia1.png y DiagramaDeSecuencia2.png
 
     Secuencia 1. Registrar ingreso de visitante (con flujo alternativo/de error).
     Objetos: Guardia (actor), SistemaIngreso (controlador propuesto para el diagrama final), Visitante, AutorizacionIngreso, RegistroIngreso.
@@ -626,6 +626,8 @@
     Nota: conviene mostrar cómo se distribuye el importe entre intereses y capital, y que no se elimina un pago si después hay que ajustarlo.
 
 
+Diagrama de clases final:
+El diagrama final de clases se puede encontrar dentro de la carpeta uml dentro de la carpeta Docs, con el nombre clasesFinalUML.png
 
 --- Aplicación de patrones SOLID:
 
