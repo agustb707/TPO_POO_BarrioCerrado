@@ -1,0 +1,3 @@
+# numeroLote;superficie (usar punto decimal)
+1;600.5
+2;50.0
