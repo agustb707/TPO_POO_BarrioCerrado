@@ -1,5 +1,0 @@
-Cosas a realizar: 
---- Primera Entrega ---
-- Hacer el diagrama UML y de casos de uso
-- Diagrama de secuencia
-- Rehacer el UML para incorporar los cambios aportados por los patrones
