@@ -6,8 +6,7 @@ public abstract class Personal extends Persona {
     private int legajo;
     private LocalDate fechaIngreso;
 
-    protected Personal(String nombre, String apellido, int dni, String telefono,
-                       String email, int legajo, LocalDate fechaIngreso) {
+    protected Personal(String nombre, String apellido, int dni, String telefono, String email, int legajo, LocalDate fechaIngreso) {
         super(nombre, apellido, dni, telefono, email);
         if (legajo <= 0 || fechaIngreso == null) {
             throw new IllegalArgumentException("El legajo y la fecha de ingreso son obligatorios.");

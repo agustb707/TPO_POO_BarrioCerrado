@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-// Controlador GRASP: coordina autorizaciones y movimientos.
+// GRASP: controlador
 public class SistemaIngreso {
     private BarrioCerrado barrio;
     private List<AutorizacionIngreso> autorizaciones;
@@ -65,5 +65,7 @@ public class SistemaIngreso {
         registro.registrarEgreso(fechaHora);
     }
 
-    public List<RegistroIngreso> getRegistros() { return new ArrayList<>(registros); }
+    public List<RegistroIngreso> getRegistros() {
+         return new ArrayList<>(registros); 
+        }
 }

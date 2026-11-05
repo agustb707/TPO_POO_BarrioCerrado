@@ -2,10 +2,14 @@ package Barrio;
 
 import java.util.ArrayList;
 import java.util.List;
+import Equipos.Equipo;
+import Enums.Sector;
+import Equipos.Falla;
 
 public class BarrioCerrado {
  private String nombre;
  private List<Lote> lotes;
+ private List<Equipo> equipos;
 
  public BarrioCerrado(String nombre) {
   if (nombre == null || nombre.isBlank()) {
@@ -13,6 +17,7 @@ public class BarrioCerrado {
   }
   this.nombre = nombre;
   this.lotes = new ArrayList<>();
+    this.equipos = new ArrayList<>();
  }
 
  public void agregarLote(Lote lote) {
@@ -39,4 +44,20 @@ public class BarrioCerrado {
 
  public String getNombre() { return nombre; }
  public List<Lote> getLotes() { return new ArrayList<>(lotes); }
+
+    // Cantidad de fallas activas (sin orden cerrada) de los equipos del sector.
+    public int contarFallasSector(Sector sector) {
+        int cantidad = 0;
+        for (Equipo equipo : equipos) {
+            if (equipo.getSector() == sector) {
+                for (Falla falla : equipo.getFallas()) {
+                    if (falla.estaActiva()) {
+                        cantidad++;
+                    }
+                }
+            }
+        }
+        return cantidad;
+    }
+
 }

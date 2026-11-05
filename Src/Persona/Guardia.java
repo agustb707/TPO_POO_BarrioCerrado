@@ -37,6 +37,10 @@ public class Guardia extends Personal {
         sistemaIngreso.registrarEgreso(registro, fechaHora);
     }
 
-    public Turno getTurno() { return turno; }
-    public Puesto getPuesto() { return puesto; }
+    public Turno getTurno() { 
+        return turno; 
+    }
+    public Puesto getPuesto() { 
+        return puesto; 
+    }
 }

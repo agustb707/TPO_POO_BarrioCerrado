@@ -6,6 +6,7 @@ import Persona.Visitante;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.LocalDateTime;
+import Excepciones.ReglaNegocioException;
 
 public class AutorizacionIngreso {
     private int numero;
@@ -16,15 +17,13 @@ public class AutorizacionIngreso {
     private Lote lote;
     private Residente autorizante;
 
-    public AutorizacionIngreso(int numero, Visitante visitante, Residente autorizante,
-                               Lote lote, LocalDate fecha, LocalTime desde, LocalTime hasta) {
-        if (numero <= 0 || visitante == null || autorizante == null || lote == null
-                || fecha == null || desde == null || hasta == null) {
-            throw new IllegalArgumentException("Faltan datos de la autorizacion.");
+    public AutorizacionIngreso(int numero, Visitante visitante, Residente autorizante, Lote lote, LocalDate fecha, LocalTime desde, LocalTime hasta) {
+        if (numero <= 0 || visitante == null || autorizante == null || lote == null || fecha == null || desde == null || hasta == null) {
+            throw new ReglaNegocioException("Faltan datos de la autorizacion.");
         }
-        if (hasta.isBefore(desde)) throw new IllegalArgumentException("El horario es invalido.");
+        if (hasta.isBefore(desde)) throw new ReglaNegocioException("El horario es invalido.");
         if (!lote.puedeAutorizarIngreso(autorizante)) {
-            throw new IllegalArgumentException("El residente no esta habilitado para este lote.");
+            throw new ReglaNegocioException("El residente no esta habilitado para este lote.");
         }
         this.numero = numero;
         this.visitante = visitante;
@@ -45,8 +44,21 @@ public class AutorizacionIngreso {
         return otro != null && visitante.getDni() == otro.getDni();
     }
 
-    public int getNumero() { return numero; }
-    public Visitante getVisitante() { return visitante; }
-    public Lote getLote() { return lote; }
-    public Residente getAutorizante() { return autorizante; }
+    public int getNumero() { 
+        return numero; 
+    }
+    public Visitante getVisitante() { 
+        return visitante; 
+    }
+    public Lote getLote() { 
+        return lote; 
+
+    }
+    public Residente getAutorizante() { 
+        return autorizante;
+    }
+    
+    protected boolean dentroDeFranja(LocalTime hora) {
+        return !hora.isBefore(horaDesde) && !hora.isAfter(horaHasta);
+    }
 }
