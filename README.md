@@ -99,8 +99,8 @@ Las entregas se identifican con los tags:
 - `etapa-1`: entrega de análisis, modelado y patrones.
 - `etapa-2`: entrega del sistema implementado y probado.
 
-## Alcance de la primera entrega
+## Alcance de la entrega final
 
 Incluye el análisis de la Propuesta A, los actores, requerimientos funcionales, reglas de negocio y supuestos, las descripciones de casos de uso, los diagramas UML solicitados y la justificación de **3 principios SOLID y 4 patrones GRASP**, junto con la explicación de los cambios del modelo inicial al final.
 
-La programación del sistema, las pruebas y la puesta a punto corresponden a la segunda entrega.
+La entrega final incluye la programación del sistema, las pruebas y la puesta a punto.
