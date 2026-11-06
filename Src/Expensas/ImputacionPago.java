@@ -1,5 +1,6 @@
 package Expensas;
 
+
 public class ImputacionPago {
     private Expensa expensa;
     private double importeInteres;
@@ -42,6 +43,8 @@ public class ImputacionPago {
         return importeCapital - capitalRevertido;
     }
 
+    public double getInteresRevertido() { return interesRevertido; }
+    public double getCapitalRevertido() { return capitalRevertido; }
     public Expensa getExpensa() { return expensa; }
     public double getImporteInteres() { return importeInteres; }
     public double getImporteCapital() { return importeCapital; }

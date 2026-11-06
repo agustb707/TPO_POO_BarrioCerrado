@@ -1,5 +1,6 @@
 package Reclamos;
 
+
 import Persona.Persona;
 import java.time.LocalDateTime;
 
@@ -17,6 +18,10 @@ public class Comentario {
         this.autor = autor;
     }
 
+    public void restaurarFecha(LocalDateTime fecha) {
+        if (fecha == null) throw new IllegalArgumentException("Fecha obligatoria.");
+        this.fecha = fecha;
+    }
     public LocalDateTime getFecha() { return fecha; }
     public String getTexto() { return texto; }
     public Persona getAutor() { return autor; }

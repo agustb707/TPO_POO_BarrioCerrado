@@ -1,5 +1,6 @@
 package Reclamos;
 
+
 import Barrio.Lote;
 import Enums.EstadoReclamo;
 import Enums.Prioridad;
@@ -173,6 +174,29 @@ public class Reclamo {
         return new ArrayList<>(historial);
     }
 
+    // Los atributos static no quedan guardados en la serializacion.
+    public static void restaurarReclamos(List<Reclamo> reclamosGuardados) {
+        secuencia = 0;
+        reclamosCreados = new ArrayList<>();
+        for (Reclamo reclamo : reclamosGuardados) {
+            reclamosCreados.add(reclamo);
+            if (reclamo.getNumero() > secuencia) secuencia = reclamo.getNumero();
+        }
+    }
+
+    // Restaura una version que ya fue validada al guardarse en texto.
+    public void restaurarDatos(int numero, LocalDateTime fecha, EstadoReclamo estado,
+                               Personal responsable, LocalDateTime fechaAtencion, LocalDateTime fechaResolucion,
+                               List<HistorialEstado> historial, List<Comentario> comentarios) {
+        this.numero = numero;
+        this.fecha = fecha;
+        this.estado = estado;
+        this.responsable = responsable;
+        this.fechaAtencion = fechaAtencion;
+        this.fechaResolucion = fechaResolucion;
+        this.historial = new ArrayList<>(historial);
+        this.comentarios = new ArrayList<>(comentarios);
+    }
     public boolean estaEnCurso() { return estado == EstadoReclamo.EN_CURSO; }
     public int getNumero() { return numero; }
     public LocalDateTime getFecha() { return fecha; }

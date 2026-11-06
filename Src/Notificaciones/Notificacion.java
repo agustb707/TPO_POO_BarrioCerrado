@@ -1,5 +1,6 @@
 package Notificaciones;
 
+
 import Barrio.BarrioCerrado;
 import Barrio.Lote;
 import Enums.TipoNotificacion;
@@ -68,6 +69,10 @@ public class Notificacion {
         return avisos;
     }
 
+    public void restaurarFecha(LocalDateTime fecha) {
+        if (fecha == null) throw new IllegalArgumentException("Fecha obligatoria.");
+        this.fecha = fecha;
+    }
     public LocalDateTime getFecha() { return fecha; }
     public Persona getDestinatario() { return destinatario; }
     public Lote getLote() { return lote; }

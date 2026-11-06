@@ -1,4 +1,6 @@
 import Archivos.ArchivoLotes;
+import Archivos.ArchivoDatos;
+import Archivos.DatosSistema;
 import Barrio.BarrioCerrado;
 import Barrio.Lote;
 import Enums.DiaSemana;
@@ -44,6 +46,7 @@ import Reclamos.Reclamo;
 import Reportes.Reporte;
 
 import java.io.IOException;
+import java.io.File;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -59,15 +62,19 @@ import java.util.Set;
 public class Main {
 
     private static final Scanner teclado = new Scanner(System.in);
-    private static final BarrioCerrado barrio = new BarrioCerrado("Los Aromos");
-    private static final SistemaIngreso sistemaIngreso = new SistemaIngreso(barrio);
-    private static final GestorExpensas gestorExpensas = new GestorExpensas(barrio);
+    private static BarrioCerrado barrio;
+    private static SistemaIngreso sistemaIngreso;
+    private static GestorExpensas gestorExpensas;
     private static final Reporte reporte = new Reporte();
     private static final ArchivoLotes archivoLotes = new ArchivoLotes("Datos/Lotes.txt");
-    private static final List<Notificacion> avisosAdministrador = new ArrayList<>();
+    private static List<Notificacion> avisosAdministrador;
+    private static final ArchivoDatos archivoDatos = new ArchivoDatos("Datos/LosAromos.txt");
 
     public static void main(String[] args) {
-        cargarLotes();
+        if (!cargarDatos()) {
+            teclado.close();
+            return;
+        }
         int opcion;
         do {
             System.out.println("\n========== BARRIO LOS AROMOS ==========");
@@ -87,7 +94,7 @@ public class Main {
                     case 4: menuEquipos(); break;
                     case 5: menuVisitas(); break;
                     case 6: menuReportes(); break;
-                    case 0: guardarLotes(); System.out.println("Hasta luego."); break;
+                    case 0: guardarDatos(); System.out.println("Hasta luego."); break;
                     default: System.out.println("Opcion incorrecta.");
                 }
             } catch (ReglaNegocioException e) {
@@ -126,6 +133,7 @@ public class Main {
                     case 0: break;
                     default: System.out.println("Opcion incorrecta.");
                 }
+                if (opcion != 0) guardarDatos();
             } catch (ReglaNegocioException e) {
                 System.out.println("Regla de negocio: " + e.getMessage());
             } catch (IllegalArgumentException e) {
@@ -170,7 +178,6 @@ public class Main {
         if (nuevo) {
             barrio.agregarLote(lote);
         }
-        guardarLotes();
         System.out.println("Lote registrado correctamente.");
     }
 
@@ -323,6 +330,7 @@ public class Main {
                     case 0: break;
                     default: System.out.println("Opcion incorrecta.");
                 }
+                if (opcion != 0) guardarDatos();
             } catch (ReglaNegocioException e) {
                 System.out.println("Regla de negocio: " + e.getMessage());
             } catch (IllegalArgumentException e) {
@@ -451,6 +459,7 @@ public class Main {
                     case 0: break;
                     default: System.out.println("Opcion incorrecta.");
                 }
+                if (opcion != 0) guardarDatos();
             } catch (ReglaNegocioException e) {
                 System.out.println("Regla de negocio: " + e.getMessage());
             } catch (IllegalArgumentException e) {
@@ -563,6 +572,7 @@ public class Main {
                     case 0: break;
                     default: System.out.println("Opcion incorrecta.");
                 }
+                if (opcion != 0) guardarDatos();
             } catch (ReglaNegocioException e) {
                 System.out.println("Regla de negocio: " + e.getMessage());
             } catch (IllegalArgumentException e) {
@@ -714,6 +724,7 @@ public class Main {
                     case 0: break;
                     default: System.out.println("Opcion incorrecta.");
                 }
+                if (opcion != 0) guardarDatos();
             } catch (ReglaNegocioException e) {
                 System.out.println("Regla de negocio: " + e.getMessage());
             } catch (IllegalArgumentException e) {
@@ -1093,22 +1104,60 @@ public class Main {
         }
     }
 
-    // ==================== ARCHIVO DE LOTES ====================
+    // ==================== PERSISTENCIA COMPLETA ====================
 
-    private static void cargarLotes() {
+    private static boolean cargarDatos() {
         try {
-            for (Lote lote : archivoLotes.leerLotes()) barrio.agregarLote(lote);
-            System.out.println("Lotes cargados: " + barrio.getLotes().size());
+            if (archivoDatos.existe()) {
+                DatosSistema datos = archivoDatos.cargar();
+                barrio = datos.getBarrio();
+                gestorExpensas = datos.getGestorExpensas();
+                sistemaIngreso = datos.getSistemaIngreso();
+                avisosAdministrador = datos.getAvisosAdministrador();
+
+                // Las listas y contadores static se reconstruyen tras leer el archivo.
+                Reclamo.restaurarReclamos(barrio.getReclamos());
+                Falla.restaurarSecuencia(barrio.getEquipos());
+                OrdenMantenimiento.restaurarSecuencia(barrio.getEquipos());
+                Residente.restaurarSecuenciaAutorizaciones(sistemaIngreso.getAutorizaciones());
+
+                System.out.println("Datos cargados correctamente.");
+            } else {
+                if (new File("Datos/LosAromos.dat").exists()) {
+                    System.out.println("AVISO: existe un archivo .dat anterior.");
+                    System.out.println("El nuevo TXT comienza con datos nuevos y no convierte el DAT.");
+                    System.out.println("Conserve una copia del archivo anterior.");
+                }
+                barrio = new BarrioCerrado("Los Aromos");
+                sistemaIngreso = new SistemaIngreso(barrio);
+                gestorExpensas = new GestorExpensas(barrio);
+                avisosAdministrador = new ArrayList<>();
+
+                // Migrar una sola vez el archivo viejo, si existe.
+                if (new File("Datos/Lotes.txt").exists()) {
+                    for (Lote lote : archivoLotes.leerLotes()) barrio.agregarLote(lote);
+                    System.out.println("Lotes importados del archivo anterior: "
+                            + barrio.getLotes().size());
+                }
+                if (!guardarDatos()) return false;
+            }
+            return true;
         } catch (IOException e) {
-            System.out.println("No se pudieron cargar los lotes: " + e.getMessage());
+            System.out.println("ERROR: no se pudieron recuperar los datos: " + e.getMessage());
+            System.out.println("No se iniciara el sistema para no sobrescribir el archivo existente.");
+            return false;
         }
     }
 
-    private static void guardarLotes() {
+    private static boolean guardarDatos() {
         try {
-            archivoLotes.guardarLotes(barrio.getLotes());
+            DatosSistema datos = new DatosSistema(
+                    barrio, gestorExpensas, sistemaIngreso, avisosAdministrador);
+            archivoDatos.guardar(datos);
+            return true;
         } catch (IOException e) {
-            System.out.println("No se pudieron guardar los lotes: " + e.getMessage());
+            System.out.println("ERROR: no se pudieron guardar los datos: " + e.getMessage());
+            return false;
         }
     }
 }

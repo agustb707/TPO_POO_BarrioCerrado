@@ -1,5 +1,6 @@
 package Expensas;
 
+
 import Barrio.BarrioCerrado;
 import Barrio.Lote;
 import Enums.MedioPago;
@@ -200,6 +201,8 @@ public class GestorExpensas {
         return nuevos;
     }
 
+    public void agregarPagoRestaurado(Pago pago) { pagos.add(pago); }
+    public void agregarAvisoRestaurado(Notificacion aviso) { avisos.add(aviso); }
     public List<Pago> getPagos() { return new ArrayList<>(pagos); }
     public List<Notificacion> getAvisos() { return new ArrayList<>(avisos); }
 }

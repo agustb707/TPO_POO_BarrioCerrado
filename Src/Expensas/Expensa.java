@@ -1,5 +1,6 @@
 package Expensas;
 
+
 import Barrio.Lote;
 import Enums.EstadoExpensa;
 import Excepciones.ReglaNegocioException;
@@ -141,6 +142,19 @@ public class Expensa {
         }
     }
 
+    public void restaurarDatos(EstadoExpensa estado, double saldoCapital,
+                               double interesPendiente, LocalDate fechaUltimoInteres, LocalDate fechaUltimaOperacion) {
+        this.estado = estado;
+        this.saldoCapital = saldoCapital;
+        this.interesPendiente = interesPendiente;
+        this.fechaUltimoInteres = fechaUltimoInteres;
+        this.fechaUltimaOperacion = fechaUltimaOperacion;
+    }
+    public void agregarPagoRestaurado(Pago pago) {
+        if (!pagos.contains(pago)) pagos.add(pago);
+    }
+    public double getInteresPendiente() { return interesPendiente; }
+    public LocalDate getFechaUltimoInteres() { return fechaUltimoInteres; }
     public int getNumero() { return numero; }
     public YearMonth getPeriodo() { return periodo; }
     public double getCapital() { return capital; }
