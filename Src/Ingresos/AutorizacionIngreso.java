@@ -1,3 +1,4 @@
+
 package Ingresos;
 
 import Barrio.Lote;
@@ -9,6 +10,7 @@ import java.time.LocalDateTime;
 import Excepciones.ReglaNegocioException;
 
 public class AutorizacionIngreso {
+
     private int numero;
     private LocalDate fechaAutorizada;
     private LocalTime horaDesde;
@@ -17,14 +19,24 @@ public class AutorizacionIngreso {
     private Lote lote;
     private Residente autorizante;
 
-    public AutorizacionIngreso(int numero, Visitante visitante, Residente autorizante, Lote lote, LocalDate fecha, LocalTime desde, LocalTime hasta) {
-        if (numero <= 0 || visitante == null || autorizante == null || lote == null || fecha == null || desde == null || hasta == null) {
+    public AutorizacionIngreso(int numero, Visitante visitante,
+                               Residente autorizante, Lote lote,
+                               LocalDate fecha, LocalTime desde,
+                               LocalTime hasta) {
+
+        if (numero <= 0 || visitante == null || autorizante == null ||
+                lote == null || fecha == null || desde == null || hasta == null) {
             throw new ReglaNegocioException("Faltan datos de la autorizacion.");
         }
-        if (hasta.isBefore(desde)) throw new ReglaNegocioException("El horario es invalido.");
-        if (!lote.puedeAutorizarIngreso(autorizante)) {
-            throw new ReglaNegocioException("El residente no esta habilitado para este lote.");
+
+        if (hasta.isBefore(desde)) {
+            throw new ReglaNegocioException("El horario es invalido.");
         }
+
+        if (!lote.puedeAutorizarIngreso(autorizante)) {
+            throw new ReglaNegocioException("El residente no esta habilitado para autorizar ingresos.");
+        }
+
         this.numero = numero;
         this.visitante = visitante;
         this.autorizante = autorizante;
@@ -34,31 +46,64 @@ public class AutorizacionIngreso {
         this.horaHasta = hasta;
     }
 
+    // VALIDAR AUTORIZACION
+
     public boolean esValida(LocalDateTime fechaHora) {
-        return fechaHora != null && fechaAutorizada.equals(fechaHora.toLocalDate())
-                && !fechaHora.toLocalTime().isBefore(horaDesde)
-                && !fechaHora.toLocalTime().isAfter(horaHasta);
+
+        if (fechaHora == null) {
+            return false;
+        }
+
+        return fechaAutorizada.equals(fechaHora.toLocalDate())
+                && dentroDeFranja(fechaHora.toLocalTime());
     }
+
+    // VERIFICAR VISITANTE
 
     public boolean correspondeAVisitante(Visitante otro) {
-        return otro != null && visitante.getDni() == otro.getDni();
+
+        if (otro == null) {
+            return false;
+        }
+
+        return visitante.getDni().equals(otro.getDni());
     }
 
-    public int getNumero() { 
-        return numero; 
-    }
-    public Visitante getVisitante() { 
-        return visitante; 
-    }
-    public Lote getLote() { 
-        return lote; 
+    // VERIFICAR HORARIO
 
+    protected boolean dentroDeFranja(LocalTime hora) {
+        return hora != null
+                && !hora.isBefore(horaDesde)
+                && !hora.isAfter(horaHasta);
     }
-    public Residente getAutorizante() { 
+
+    // GETTERS
+
+    public int getNumero() {
+        return numero;
+    }
+
+    public Visitante getVisitante() {
+        return visitante;
+    }
+
+    public Lote getLote() {
+        return lote;
+    }
+
+    public Residente getAutorizante() {
         return autorizante;
     }
-    
-    protected boolean dentroDeFranja(LocalTime hora) {
-        return !hora.isBefore(horaDesde) && !hora.isAfter(horaHasta);
+
+    public LocalDate getFechaAutorizada() {
+        return fechaAutorizada;
+    }
+
+    public LocalTime getHoraDesde() {
+        return horaDesde;
+    }
+
+    public LocalTime getHoraHasta() {
+        return horaHasta;
     }
 }

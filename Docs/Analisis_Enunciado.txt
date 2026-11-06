@@ -53,8 +53,8 @@
     Atributos:
     - nombre: String
     - apellido: String
-    - dni: String
-    - telefono: String
+    - dni: int
+    - telefono: int
     - email: String
     Métodos:
     - obtenerNombreCompleto(): String

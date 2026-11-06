@@ -1,3 +1,4 @@
+
 package Archivos;
 
 import Barrio.Lote;
@@ -7,68 +8,87 @@ import java.io.FileWriter;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ArchivoLotes {
+
     private File archivo;
 
     public ArchivoLotes(String ruta) {
-        if (ruta == null || ruta.isBlank()) {
+        if (ruta == null || ruta.trim().isEmpty()) {
             throw new IllegalArgumentException("La ruta es obligatoria.");
         }
-        archivo = new File(ruta);
+        this.archivo = new File(ruta);
     }
 
-    // Formato de cada linea: numeroLote;superficie
+    // Leer los lotes desde el archivo
     public List<Lote> leerLotes() throws IOException {
         List<Lote> lotes = new ArrayList<>();
-        if (!archivo.exists()) return lotes;
 
-        try (BufferedReader lector = new BufferedReader(
-                new FileReader(archivo, StandardCharsets.UTF_8))) {
+        if (!archivo.exists()) {
+            return lotes;
+        }
+
+        try (BufferedReader lector = new BufferedReader(new FileReader(archivo))) {
             String linea;
             int numeroLinea = 0;
+
             while ((linea = lector.readLine()) != null) {
                 numeroLinea++;
-                if (linea.isBlank() || linea.trim().startsWith("#")) continue;
-                String[] datos = linea.split(";", -1);
-                if (datos.length != 2) {
-                    throw new IOException("Linea " + numeroLinea + ": se espera numero;superficie.");
+
+                if (linea.trim().isEmpty() || linea.trim().startsWith("#")) {
+                    continue;
                 }
+
+                String[] datos = linea.split(";");
+
+                if (datos.length != 2) {
+                    throw new IOException("Formato incorrecto en la linea " + numeroLinea);
+                }
+
                 try {
                     int numero = Integer.parseInt(datos[0].trim());
                     double superficie = Double.parseDouble(datos[1].trim());
-                    Lote nuevo = new Lote(numero, superficie);
-                    for (Lote existente : lotes) {
-                        if (existente.getNumeroLote() == numero) {
+
+                    // Verificar que el lote no esté repetido
+                    for (Lote lote : lotes) {
+                        if (lote.getNumeroLote() == numero) {
                             throw new IllegalArgumentException("Numero de lote repetido.");
                         }
                     }
+
                     if (lotes.size() >= 150) {
-                        throw new IllegalArgumentException("Se superan los 150 lotes.");
+                        throw new IllegalArgumentException("No puede haber mas de 150 lotes.");
                     }
+
+                    Lote nuevo = new Lote(numero, superficie);
                     lotes.add(nuevo);
+
                 } catch (IllegalArgumentException e) {
                     throw new IOException("Linea " + numeroLinea + ": " + e.getMessage(), e);
                 }
             }
         }
+
         return lotes;
     }
 
-    // Guarda la lista completa; reemplaza la version anterior del archivo.
+    // Guardar los lotes en el archivo
     public void guardarLotes(List<Lote> lotes) throws IOException {
-        if (lotes == null) throw new IllegalArgumentException("La lista es obligatoria.");
-        File carpeta = archivo.getAbsoluteFile().getParentFile();
-        if (!carpeta.exists() && !carpeta.mkdirs()) {
-            throw new IOException("No se pudo crear la carpeta de datos.");
+        if (lotes == null) {
+            throw new IllegalArgumentException("La lista de lotes es obligatoria.");
         }
-        try (BufferedWriter escritor = new BufferedWriter(
-                new FileWriter(archivo, StandardCharsets.UTF_8))) {
-            escritor.write("# numeroLote;superficie (usar punto decimal)");
+
+        if (lotes.size() > 150) {
+            throw new IllegalArgumentException("No puede haber mas de 150 lotes.");
+        }
+
+        try (BufferedWriter escritor = new BufferedWriter(new FileWriter(archivo))) {
+
+            escritor.write("# numeroLote;superficie");
             escritor.newLine();
+
             for (Lote lote : lotes) {
                 escritor.write(lote.getNumeroLote() + ";" + lote.getSuperficie());
                 escritor.newLine();
@@ -76,5 +96,7 @@ public class ArchivoLotes {
         }
     }
 
-    public String getRuta() { return archivo.getAbsolutePath(); }
+    public String getRuta() {
+        return archivo.getAbsolutePath();
+    }
 }
