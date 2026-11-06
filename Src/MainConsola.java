@@ -1,48 +1,14 @@
-import Archivos.ArchivoLotes;
-import Archivos.ArchivoDatos;
-import Archivos.DatosSistema;
-import Barrio.BarrioCerrado;
-import Barrio.Lote;
-import Enums.Especialidad;
-import Enums.EstadoEquipo;
-import Enums.EstadoReclamo;
-import Enums.MedioPago;
-import Enums.Puesto;
-import Enums.Resolucion;
-import Enums.Sector;
-import Enums.TipoLuminaria;
-import Enums.TipoReclamo;
-import Enums.Turno;
-import Equipos.Camara;
-import Equipos.Equipo;
-import Equipos.Falla;
-import Equipos.Luminaria;
-import Equipos.OrdenMantenimiento;
-import Excepciones.ReglaNegocioException;
-import Expensas.AjustePago;
-import Expensas.Expensa;
-import Expensas.GestorExpensas;
-import Expensas.Pago;
-import Ingresos.AutorizacionIngreso;
-import Ingresos.AutorizacionRecurrente;
-import Ingresos.RegistroIngreso;
-import Ingresos.SistemaIngreso;
-import Notificaciones.Notificacion;
-import Persona.Administrador;
-import Persona.EmpleadoMantenimiento;
-import Persona.Familiar;
-import Persona.Guardia;
-import Persona.Inquilino;
-import Persona.Persona;
-import Persona.Personal;
-import Persona.Proveedor;
-import Persona.Residente;
-import Persona.Titular;
-import Persona.Visitante;
-import Reclamos.Comentario;
-import Reclamos.HistorialEstado;
-import Reclamos.Reclamo;
-import Reportes.Reporte;
+import Archivos.*;
+import Barrio.*;
+import Enums.*;
+import Equipos.*;
+import Expensas.*;
+import Ingresos.*;
+import Notificaciones.*;
+import Persona.*;
+import Reclamos.*;
+import Reportes.*;
+import Excepciones.*;
 
 import java.io.IOException;
 import java.io.File;
@@ -1056,11 +1022,6 @@ public class MainConsola {
             if (texto.isEmpty()) System.out.println("Este dato es obligatorio.");
         } while (texto.isEmpty());
         return texto;
-    }
-
-    private static String leerOpcional(String mensaje) {
-        System.out.print(mensaje);
-        return teclado.nextLine().trim();
     }
 
     private static int leerEntero(String mensaje) {

@@ -10,7 +10,7 @@ El trabajo se divide en dos etapas:
 - **Etapa 1:** análisis del problema, requerimientos, reglas de negocio, casos de uso, modelado UML y aplicación de principios SOLID y patrones GRASP.
 - **Etapa 2:** implementación en Java, pruebas y puesta a punto del sistema.
 
-**Estado actual:** Etapa 1 (diseño). Todavía no hay una aplicación terminada para ejecutar.
+**Estado actual:** Etapa 2 (entrega final). 
 
 ## Integrantes
 
@@ -79,7 +79,7 @@ Barrio-Los-Aromos/
 │   ├── [documento de diseño de Etapa 1]
 │   └── uml/
 │       └── [diagramas UML y archivos fuente]
-├── src/                 # Código Java (Etapa 2)
+├── Src/                 # Código Java (Etapa 2)
 └── test/                # Pruebas (Etapa 2)
 ```
 
@@ -94,10 +94,6 @@ Los nombres entre corchetes son descriptivos y deben reemplazarse por los archiv
 ## Control de versiones y entregas
 
 El proyecto se desarrolla de forma colaborativa en GitHub. Cada integrante realiza sus propios commits; los cambios se trabajan en ramas y se integran a `main` mediante pull requests revisados por otro integrante.
-
-Las entregas se identifican con los tags:
-- `etapa-1`: entrega de análisis, modelado y patrones.
-- `etapa-2`: entrega del sistema implementado y probado.
 
 ## Alcance de la entrega final
 

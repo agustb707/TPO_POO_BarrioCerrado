@@ -1,0 +1,26 @@
+Informe Final de Trabajo Práctico
+-Cambios respecto del diseño original
+
+Durante el desarrollo no se realizaron modificaciones sobre el diseño conceptual de las clases. 
+Los únicos cambios implementados consistieron en la estructuración del código mediante la creación de paquetes específicos 
+y la reubicación de sus respectivas clases dentro del directorio src para lograr una mejor modularización.
+
+-Distribución de tareas
+
+La distribución del trabajo se llevó a cabo de manera dinámica y colaborativa, sin una división estricta o fija de roles. 
+Ambas partes avanzaron de forma autónoma según la disponibilidad horaria, y se realizaron sesiones de trabajo conjunto 
+desde las computadoras de ambos integrantes. En estas instancias, se adoptó una dinámica de programación en la que un 
+integrante se encargaba de la codificación mientras el otro supervisaba, validaba la lógica y verificaba la correcta 
+integración del código.
+
+-Dificultades encontradas
+
+El principal obstáculo al que nos enfrentamos fue la gestión de un volumen elevado de clases y enumerados (Enums). 
+Esta complejidad estructural dificultó temporalmente el seguimiento del flujo de información y propició la aparición 
+de errores imprevistos, los cuales requirieron de un proceso detallado de depuración y corrección conjunta.
+
+-Reflexión del grupo
+
+A modo de balance, destacamos el desempeño del equipo, caracterizado por una alta cohesión y un trabajo colaborativo constante. 
+Esta experiencia nos brindó la valiosa oportunidad de afrontar el desarrollo integral de un sistema de software 
+desde sus cimientos, comprendiendo y superando los desafíos reales que implica una implementación de esta magnitud.
