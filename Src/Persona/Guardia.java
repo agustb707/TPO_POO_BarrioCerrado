@@ -15,7 +15,7 @@ public class Guardia extends Personal {
     private Puesto puesto;
     private SistemaIngreso sistemaIngreso;
 
-    public Guardia(String nombre, String apellido, String dni, String telefono,
+    public Guardia(String nombre, String apellido, int dni, int telefono,
                    String email, int legajo, LocalDate fechaIngreso, Turno turno,
                    Puesto puesto, SistemaIngreso sistemaIngreso) {
         super(nombre, apellido, dni, telefono, email, legajo, fechaIngreso);

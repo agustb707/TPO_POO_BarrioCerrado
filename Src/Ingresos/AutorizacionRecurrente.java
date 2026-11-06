@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.HashSet;
+import java.util.Arrays;
 import java.util.Set;
 import Barrio.Lote;
 import Persona.Residente;
@@ -30,18 +31,21 @@ public class AutorizacionRecurrente extends AutorizacionIngreso {
                 || fechaFin.isAfter(fechaInicio.plusDays(LIMITE_DIAS - 1))) {
             throw new ReglaNegocioException("La autorizacion no puede superar los 30 dias.");
         }
-        if (diasPermitidos == null || diasPermitidos.isEmpty()) {
-            throw new ReglaNegocioException("Debe indicar dias permitidos.");
-        }
+        // Los dias no se eligen: se permite cualquier dia dentro del rango.
         this.fechaInicio = fechaInicio;
         this.fechaFin = fechaFin;
-        this.diasPermitidos = new HashSet<>(diasPermitidos);
+        this.diasPermitidos = new HashSet<>(Arrays.asList(DiaSemana.values()));
+    }
+    public AutorizacionRecurrente(int numero, Visitante visitante, Lote lote,
+                                  Residente autorizante, LocalDate fechaInicio,
+                                  LocalDate fechaFin, LocalTime horaDesde, LocalTime horaHasta) {
+        this(numero, visitante, lote, autorizante, fechaInicio, fechaFin,
+                new HashSet<>(Arrays.asList(DiaSemana.values())), horaDesde, horaHasta);
     }
     @Override public boolean esValida(LocalDateTime fechaHora) {
         if (fechaHora == null) return false;
         LocalDate fecha = fechaHora.toLocalDate();
         return !fecha.isBefore(fechaInicio) && !fecha.isAfter(fechaFin)
-                && diasPermitidos.contains(DiaSemana.desde(fecha.getDayOfWeek()))
                 && dentroDeFranja(fechaHora.toLocalTime());
     }
     public LocalDate getFechaInicio() { return fechaInicio; }

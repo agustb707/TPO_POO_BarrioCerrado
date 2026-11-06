@@ -6,11 +6,14 @@ import Reclamos.Reclamo;
 public abstract class Personal extends Persona {
     private int legajo;
     private LocalDate fechaIngreso;
-    protected Personal(String nombre, String apellido, String dni, String telefono,
+    protected Personal(String nombre, String apellido, int dni, int telefono,
                        String email, int legajo, LocalDate fechaIngreso) {
         super(nombre, apellido, dni, telefono, email);
         if (legajo <= 0 || fechaIngreso == null) {
             throw new IllegalArgumentException("Legajo o fecha de ingreso invalidos.");
+        }
+        if (!fechaIngreso.isBefore(LocalDate.now())) {
+            throw new IllegalArgumentException("La fecha de ingreso debe ser anterior a la fecha actual.");
         }
         this.legajo = legajo;
         this.fechaIngreso = fechaIngreso;

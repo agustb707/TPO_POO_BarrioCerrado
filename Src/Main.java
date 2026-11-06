@@ -3,7 +3,6 @@ import Archivos.ArchivoDatos;
 import Archivos.DatosSistema;
 import Barrio.BarrioCerrado;
 import Barrio.Lote;
-import Enums.DiaSemana;
 import Enums.Especialidad;
 import Enums.EstadoEquipo;
 import Enums.EstadoReclamo;
@@ -53,11 +52,9 @@ import java.time.LocalTime;
 import java.time.YearMonth;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
-import java.util.Set;
 
 public class Main {
 
@@ -83,7 +80,7 @@ public class Main {
             System.out.println("3. Administrar expensas");
             System.out.println("4. Administrar equipos");
             System.out.println("5. Administrar visitas");
-            System.out.println("6. Crear reportes");
+            System.out.println("6. Ver reportes");
             System.out.println("0. Salir");
             opcion = leerEntero("Opcion: ");
             try {
@@ -220,7 +217,7 @@ public class Main {
     }
 
     private static Titular crearTitular() {
-        String dni = leerTexto("DNI del titular: ");
+        int dni = leerDni("DNI del titular: ");
         Persona existente = buscarPersonaPorDni(dni);
         if (existente instanceof Titular) {
             System.out.println("Titular existente: " + existente.obtenerNombreCompleto());
@@ -231,15 +228,15 @@ public class Main {
         }
         String nombre = leerTexto("Nombre: ");
         String apellido = leerTexto("Apellido: ");
-        String telefono = leerOpcional("Telefono: ");
-        String email = leerOpcional("Email: ");
+        int telefono = leerTelefono("Telefono (8 digitos, sin codigo de area): ");
+        String email = leerEmail("Email: ");
         return new Titular(nombre, apellido, dni, telefono, email);
     }
 
     private static Residente crearFamiliarOInquilino() {
         int tipo = leerEntero("1. Familiar  2. Inquilino: ");
         if (tipo != 1 && tipo != 2) throw new IllegalArgumentException("Tipo de residente incorrecto.");
-        String dni = leerTexto("DNI: ");
+        int dni = leerDni("DNI: ");
         Persona existente = buscarPersonaPorDni(dni);
         if ((tipo == 1 && existente instanceof Familiar) ||
                 (tipo == 2 && existente instanceof Inquilino)) {
@@ -251,8 +248,8 @@ public class Main {
         }
         String nombre = leerTexto("Nombre: ");
         String apellido = leerTexto("Apellido: ");
-        String telefono = leerOpcional("Telefono: ");
-        String email = leerOpcional("Email: ");
+        int telefono = leerTelefono("Telefono (8 digitos, sin codigo de area): ");
+        String email = leerEmail("Email: ");
         if (tipo == 1) return new Familiar(nombre, apellido, dni, telefono, email);
         return new Inquilino(nombre, apellido, dni, telefono, email);
     }
@@ -270,14 +267,14 @@ public class Main {
         }
         String nombre = leerTexto("Nombre: ");
         String apellido = leerTexto("Apellido: ");
-        String dni = leerTexto("DNI: ");
+        int dni = leerDni("DNI: ");
         if (buscarPersonaPorDni(dni) != null) {
             throw new IllegalArgumentException("Ya existe una persona con ese DNI.");
         }
-        String telefono = leerOpcional("Telefono: ");
-        String email = leerOpcional("Email: ");
+        int telefono = leerTelefono("Telefono (8 digitos, sin codigo de area): ");
+        String email = leerEmail("Email: ");
         int legajo = leerEntero("Legajo: ");
-        LocalDate fecha = leerFecha("Fecha de ingreso (AAAA-MM-DD): ");
+        LocalDate fecha = leerFechaIngresoPersonal();
 
         Personal personal;
         if (tipo == 1) {
@@ -341,7 +338,7 @@ public class Main {
 
     private static void registrarReclamo() {
         if (barrio.getAdministrador() == null) {
-            System.out.println("Registre primero al administrador.");
+            System.out.println("No hay administradores existentes, registre al menos uno para continuar");
             return;
         }
         Lote lote = pedirLote();
@@ -446,7 +443,7 @@ public class Main {
             System.out.println("2. Consultar expensas por lote");
             System.out.println("3. Registrar pago total o parcial");
             System.out.println("4. Corregir pago mediante ajuste");
-            System.out.println("5. Consultar deudas y generar avisos");
+            System.out.println("5. Consultar deudas");
             System.out.println("0. Volver");
             opcion = leerEntero("Opcion: ");
             try {
@@ -455,7 +452,7 @@ public class Main {
                     case 2: consultarExpensas(); break;
                     case 3: registrarPago(); break;
                     case 4: corregirPago(); break;
-                    case 5: consultarDeudasYAvisar(); break;
+                    case 5: consultarDeudas(); break;
                     case 0: break;
                     default: System.out.println("Opcion incorrecta.");
                 }
@@ -478,7 +475,7 @@ public class Main {
         System.out.println("Se generaron " + nuevas.size() + " expensas.");
         for (Expensa expensa : nuevas) {
             System.out.println("Lote " + expensa.getLote().getNumeroLote()
-                    + " | Importe: $" + expensa.getCapital());
+                    + " | Importe: $" + dinero(expensa.getCapital()));
         }
     }
 
@@ -492,9 +489,9 @@ public class Main {
         for (Expensa expensa : lote.getExpensas()) {
             expensa.actualizarEstado(LocalDate.now());
             System.out.println("Expensa " + expensa.getNumero() + " | Periodo " + expensa.getPeriodo()
-                    + " | Capital $" + expensa.getCapital() + " | Interes $"
-                    + expensa.calcularInteresMora(LocalDate.now()) + " | Deuda total $"
-                    + expensa.calcularDeuda(LocalDate.now()) + " | Estado " + expensa.getEstado());
+                    + " | Capital $" + dinero(expensa.getCapital()) + " | Interes $"
+                    + dinero(expensa.calcularInteresMora(LocalDate.now())) + " | Deuda total $"
+                    + dinero(expensa.calcularDeuda(LocalDate.now())) + " | Estado " + expensa.getEstado());
         }
     }
 
@@ -506,7 +503,7 @@ public class Main {
         MedioPago medio = elegirEnum(MedioPago.values(), "Medio de pago");
         LocalDate fecha = leerFecha("Fecha de pago (AAAA-MM-DD): ");
         Pago pago = gestorExpensas.registrarPago(lote, fecha, importe, medio);
-        System.out.println("Pago " + pago.getNumero() + " registrado. Importe: $" + pago.getImporte());
+        System.out.println("Pago " + pago.getNumero() + " registrado. Importe: $" + dinero(pago.getImporte()));
     }
 
     private static void corregirPago() {
@@ -514,8 +511,8 @@ public class Main {
         if (pagos.isEmpty()) { System.out.println("No hay pagos registrados."); return; }
         for (Pago pago : pagos) {
             System.out.println("Pago " + pago.getNumero() + " | Fecha: " + pago.getFecha()
-                    + " | Importe original: $" + pago.getImporte()
-                    + " | Neto: $" + pago.obtenerImporteNeto());
+                    + " | Importe original: $" + dinero(pago.getImporte())
+                    + " | Neto: $" + dinero(pago.obtenerImporteNeto()));
         }
         int numero = leerEntero("Numero de pago a corregir: ");
         Pago elegido = null;
@@ -526,27 +523,24 @@ public class Main {
         String motivo = leerTexto("Motivo: ");
         LocalDate fecha = leerFecha("Fecha del ajuste (AAAA-MM-DD): ");
         gestorExpensas.registrarAjuste(elegido, new AjustePago(fecha, importe, motivo));
-        System.out.println("Ajuste registrado. Nuevo importe neto: $" + elegido.obtenerImporteNeto());
+        System.out.println("Ajuste registrado. Nuevo importe neto: $" + dinero(elegido.obtenerImporteNeto()));
     }
 
-    private static void consultarDeudasYAvisar() {
+    private static void consultarDeudas() {
         Map<Lote, Double> deudas = reporte.generarMorosidadPorLote(barrio.getLotes());
         if (deudas.isEmpty()) System.out.println("No hay deudas.");
         for (Map.Entry<Lote, Double> entrada : deudas.entrySet()) {
             Lote lote = entrada.getKey();
             lote.actualizarMorosidad();
             System.out.println("Lote " + lote.getNumeroLote() + " | Deuda: $"
-                    + entrada.getValue() + " | Moroso: " + (lote.isMoroso() ? "SI" : "NO"));
+                    + dinero(entrada.getValue()) + " | Moroso: " + (lote.isMoroso() ? "SI" : "NO"));
         }
-        List<Notificacion> avisos = gestorExpensas.generarAvisosMorosidad();
-        for (Notificacion aviso : avisos) System.out.println(aviso.generarAviso());
-        System.out.println("Avisos nuevos: " + avisos.size());
     }
 
     private static void consultarDeudaLote(Lote lote) {
         double total = 0;
         for (Expensa expensa : lote.getExpensas()) total += expensa.calcularDeuda(LocalDate.now());
-        System.out.println("Deuda actual aproximada del lote: $" + total);
+        System.out.println("Deuda actual aproximada del lote: $" + dinero(total));
     }
 
     // ==================== 4. EQUIPOS ====================
@@ -629,7 +623,7 @@ public class Main {
 
     private static void crearOrdenParaFalla(Falla falla) {
         if (barrio.getAdministrador() == null) {
-            System.out.println("Registre primero un administrador.");
+            System.out.println("No hay administradores existentes, registre al menos uno para continuar");
             return;
         }
         EmpleadoMantenimiento tecnico = elegirTecnico();
@@ -646,7 +640,15 @@ public class Main {
         System.out.println(equipo);
         System.out.println("Fallas: " + equipo.getFallas().size()
                 + " | Ordenes: " + equipo.getOrdenes().size());
-        if (leerSiNo("¿Cambiar estado? (s/n): ")) {
+        boolean reparacionCerrada = false;
+        for (OrdenMantenimiento orden : equipo.getOrdenes()) {
+            if (!orden.estaAbierta() && orden.getFechaReparacion() != null) {
+                reparacionCerrada = true;
+            }
+        }
+        if (reparacionCerrada) {
+            System.out.println("Este equipo tiene una reparacion cerrada. No se puede cambiar manualmente su estado.");
+        } else if (leerSiNo("¿Cambiar estado? (s/n): ")) {
             EstadoEquipo estado = elegirEnum(EstadoEquipo.values(), "Estado");
             equipo.cambiarEstado(estado);
             System.out.println("Estado actualizado a " + equipo.getEstado());
@@ -681,11 +683,9 @@ public class Main {
         String descripcion = leerTexto("Descripcion de la reparacion: ");
         LocalDate fecha = leerFecha("Fecha de reparacion (AAAA-MM-DD): ");
         tecnico.registrarReparacion(elegida, descripcion, fecha);
-        System.out.println("Reparacion registrada.");
-        if (leerSiNo("¿Cerrar la orden ahora? (s/n): ")) {
-            tecnico.cerrarOrden(elegida);
-            System.out.println("Orden cerrada. Estado del equipo: " + elegida.getEquipo().getEstado());
-        }
+        elegida.cerrarOrden(fecha);
+        System.out.println("Reparacion registrada y orden cerrada. Estado del equipo: "
+                + elegida.getEquipo().getEstado());
     }
 
     private static void mostrarAvisosAdministrador() {
@@ -741,7 +741,7 @@ public class Main {
         Residente autorizante = elegirResidente(lote);
         if (autorizante == null) return;
         boolean proveedor = leerSiNo("¿La visita es un proveedor? (s/n): ");
-        String dni = leerTexto("DNI del visitante: ");
+        int dni = leerDni("DNI del visitante: ");
         Persona existente = buscarPersonaPorDni(dni);
         Visitante visitante;
         if (existente != null) {
@@ -754,8 +754,8 @@ public class Main {
         } else {
             String nombre = leerTexto("Nombre del visitante: ");
             String apellido = leerTexto("Apellido: ");
-            String telefono = leerOpcional("Telefono: ");
-            String email = leerOpcional("Email: ");
+            int telefono = leerTelefono("Telefono (8 digitos, sin codigo de area): ");
+            String email = leerEmail("Email: ");
             visitante = proveedor
                     ? new Proveedor(nombre, apellido, dni, telefono, email)
                     : new Visitante(nombre, apellido, dni, telefono, email);
@@ -764,24 +764,21 @@ public class Main {
         int numero = siguienteAutorizacion();
         LocalTime desde = leerHora("Hora desde (HH:MM): ");
         LocalTime hasta = leerHora("Hora hasta (HH:MM): ");
+        if (!lote.puedeAutorizarIngreso(autorizante)) {
+            throw new ReglaNegocioException("El residente elegido no esta autorizado para permitir visitas.");
+        }
+        if (!hasta.isAfter(desde)) {
+            throw new IllegalArgumentException("La hora de salida debe ser posterior a la hora de ingreso.");
+        }
         AutorizacionIngreso autorizacion;
         if (proveedor && leerSiNo("¿Permiso recurrente por varios dias? (s/n): ")) {
             LocalDate inicio = leerFecha("Fecha inicio (AAAA-MM-DD): ");
             LocalDate fin = leerFecha("Fecha fin (AAAA-MM-DD): ");
-            Set<DiaSemana> dias = new HashSet<>();
-            System.out.println("Seleccione dias permitidos. Ingrese 0 para terminar.");
-            int opcion;
-            do {
-                for (int i = 0; i < DiaSemana.values().length; i++) {
-                    System.out.println((i + 1) + ". " + DiaSemana.values()[i]);
-                }
-                opcion = leerEntero("Dia (0 para finalizar): ");
-                if (opcion > 0 && opcion <= DiaSemana.values().length) {
-                    dias.add(DiaSemana.values()[opcion - 1]);
-                } else if (opcion != 0) System.out.println("Dia incorrecto.");
-            } while (opcion != 0);
+            if (fin.isBefore(inicio)) {
+                throw new IllegalArgumentException("La fecha de fin debe ser posterior o igual a la fecha de inicio.");
+            }
             autorizacion = new AutorizacionRecurrente(numero, visitante, lote,
-                    autorizante, inicio, fin, dias, desde, hasta);
+                    autorizante, inicio, fin, desde, hasta);
         } else {
             LocalDate fecha = leerFecha("Fecha autorizada (AAAA-MM-DD): ");
             autorizacion = new AutorizacionIngreso(numero, visitante, autorizante,
@@ -794,7 +791,7 @@ public class Main {
     private static void registrarIngreso() {
         Guardia guardia = elegirGuardia();
         if (guardia == null) return;
-        String dni = leerTexto("DNI del visitante: ");
+        int dni = leerDni("DNI del visitante: ");
         Visitante visitante = buscarVisitantePorDni(dni);
         if (visitante == null) { System.out.println("El visitante no tiene permisos registrados."); return; }
         RegistroIngreso registro = guardia.registrarIngreso(visitante, LocalDateTime.now());
@@ -842,8 +839,8 @@ public class Main {
         int opcion;
         do {
             System.out.println("\n--- REPORTES ---");
-            System.out.println("1. Reclamos pendientes");
-            System.out.println("2. Lotes con deudas");
+            System.out.println("1. Ver solicitudes y reclamos pendientes");
+            System.out.println("2. Ver lotes con deudas");
             System.out.println("3. Equipos fuera de servicio");
             System.out.println("0. Volver");
             opcion = leerEntero("Opcion: ");
@@ -858,7 +855,7 @@ public class Main {
                     if (deudas.isEmpty()) System.out.println("No hay lotes con deuda.");
                     for (Map.Entry<Lote, Double> entrada : deudas.entrySet()) {
                         System.out.println("Lote " + entrada.getKey().getNumeroLote()
-                                + " | Deuda $" + entrada.getValue());
+                                + " | Deuda $" + dinero(entrada.getValue()));
                     }
                     break;
                 case 3:
@@ -874,20 +871,20 @@ public class Main {
 
     // ==================== BUSQUEDAS ====================
 
-    private static Persona buscarPersonaPorDni(String dni) {
+    private static Persona buscarPersonaPorDni(int dni) {
         for (Lote lote : barrio.getLotes()) {
-            if (lote.getTitular() != null && lote.getTitular().getDni().equals(dni)) {
+            if (lote.getTitular() != null && lote.getTitular().getDni() == dni) {
                 return lote.getTitular();
             }
             for (Residente residente : lote.getResidentes()) {
-                if (residente.getDni().equals(dni)) return residente;
+                if (residente.getDni() == dni) return residente;
             }
         }
         for (Personal personal : barrio.getPersonal()) {
-            if (personal.getDni().equals(dni)) return personal;
+            if (personal.getDni() == dni) return personal;
         }
         for (AutorizacionIngreso autorizacion : sistemaIngreso.getAutorizaciones()) {
-            if (autorizacion.getVisitante().getDni().equals(dni)) {
+            if (autorizacion.getVisitante().getDni() == dni) {
                 return autorizacion.getVisitante();
             }
         }
@@ -995,9 +992,9 @@ public class Main {
         return null;
     }
 
-    private static Visitante buscarVisitantePorDni(String dni) {
+    private static Visitante buscarVisitantePorDni(int dni) {
         for (AutorizacionIngreso autorizacion : sistemaIngreso.getAutorizaciones()) {
-            if (autorizacion.getVisitante().getDni().equals(dni)) return autorizacion.getVisitante();
+            if (autorizacion.getVisitante().getDni() == dni) return autorizacion.getVisitante();
         }
         return null;
     }
@@ -1011,6 +1008,45 @@ public class Main {
     }
 
     // ==================== ENTRADA POR TECLADO ====================
+
+    private static String dinero(double importe) {
+        return String.format(java.util.Locale.US, "%.2f", importe);
+    }
+
+    private static String leerEmail(String mensaje) {
+        while (true) {
+            String email = leerTexto(mensaje);
+            int arroba = email.indexOf('@');
+            int punto = email.indexOf('.', arroba + 1);
+            if (arroba > 0 && punto > arroba + 1 && punto < email.length() - 1
+                    && email.indexOf('@', arroba + 1) == -1) return email;
+            System.out.println("El email debe contener un @ y un punto despues.");
+        }
+    }
+
+    private static int leerDni(String mensaje) {
+        while (true) {
+            int numero = leerEntero(mensaje);
+            if (numero >= 1000000 && numero <= 999999999) return numero;
+            System.out.println("El DNI debe tener de 7 a 9 digitos.");
+        }
+    }
+
+    private static int leerTelefono(String mensaje) {
+        while (true) {
+            int numero = leerEntero(mensaje);
+            if (numero >= 10000000 && numero <= 99999999) return numero;
+            System.out.println("El telefono debe tener exactamente 8 digitos, sin codigo de area.");
+        }
+    }
+
+    private static LocalDate leerFechaIngresoPersonal() {
+        while (true) {
+            LocalDate fecha = leerFecha("Fecha de ingreso laboral (AAAA-MM-DD): ");
+            if (fecha.isBefore(LocalDate.now())) return fecha;
+            System.out.println("La fecha de ingreso debe ser anterior a la fecha actual.");
+        }
+    }
 
     private static String leerTexto(String mensaje) {
         String texto;
@@ -1042,7 +1078,17 @@ public class Main {
         while (true) {
             try {
                 System.out.print(mensaje);
-                return Double.parseDouble(teclado.nextLine().trim().replace(',', '.'));
+                String texto = teclado.nextLine().trim().replace(',', '.');
+                if (!texto.matches("-?[0-9]+(\\.[0-9]{1,2})?")) {
+                    System.out.println("Ingrese un numero con maximo 2 decimales.");
+                    continue;
+                }
+                double numero = Double.parseDouble(texto);
+                if (!Double.isFinite(numero)) {
+                    System.out.println("Numero invalido.");
+                    continue;
+                }
+                return numero;
             } catch (NumberFormatException e) {
                 System.out.println("Ingrese un numero valido.");
             }

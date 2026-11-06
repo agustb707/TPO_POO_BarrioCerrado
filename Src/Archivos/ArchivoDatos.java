@@ -22,11 +22,9 @@ import java.time.LocalTime;
 import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 // Guarda el estado completo en un archivo de texto legible, sin serializacion binaria.
 // Cada renglon tiene un tipo de registro y campos separados por punto y coma.
@@ -53,7 +51,8 @@ public class ArchivoDatos {
     }
 
     private String valor(Object dato) { return dato == null ? "" : dato.toString(); }
-    private String dni(Persona p) { return p == null ? "" : p.getDni(); }
+    private String dni(Persona p) { return p == null ? "" : valor(p.getDni()); }
+    private String dinero(double importe) { return String.format(java.util.Locale.US, "%.2f", importe); }
     private String numero(Lote l) { return l == null ? "" : valor(l.getNumeroLote()); }
     private String legajo(Personal p) { return p == null ? "" : valor(p.getLegajo()); }
 
@@ -66,7 +65,7 @@ public class ArchivoDatos {
     }
 
     private void guardarPersona(Map<String, Persona> personas, Persona p) {
-        if (p != null) personas.put(p.getDni(), p);
+        if (p != null) personas.put(valor(p.getDni()), p);
     }
 
     public void guardar(DatosSistema datos) throws IOException {
@@ -187,36 +186,31 @@ public class ArchivoDatos {
             for (Lote l : barrio.getLotes()) {
                 for (Expensa e : l.getExpensas()) {
                     escribir(salida, "EXPENSA", valor(e.getNumero()), numero(l), valor(e.getPeriodo()),
-                            valor(e.getCapital()), valor(e.getEstado()), valor(e.calcularSaldoCapital()),
-                            valor(e.getInteresPendiente()), valor(e.getFechaUltimoInteres()),
+                            dinero(e.getCapital()), valor(e.getEstado()), dinero(e.calcularSaldoCapital()),
+                            dinero(e.getInteresPendiente()), valor(e.getFechaUltimoInteres()),
                             valor(e.getFechaUltimaOperacion()));
                 }
             }
             for (Pago p : gestor.getPagos()) {
                 escribir(salida, "PAGO", valor(p.getNumero()), valor(p.getFecha()),
-                        valor(p.getImporte()), valor(p.getMedioPago()));
+                        dinero(p.getImporte()), valor(p.getMedioPago()));
                 for (ImputacionPago i : p.getImputaciones()) {
                     escribir(salida, "IMPUTACION", valor(p.getNumero()), valor(i.getExpensa().getNumero()),
-                            valor(i.getImporteInteres()), valor(i.getImporteCapital()),
-                            valor(i.getInteresRevertido()), valor(i.getCapitalRevertido()));
+                            dinero(i.getImporteInteres()), dinero(i.getImporteCapital()),
+                            dinero(i.getInteresRevertido()), dinero(i.getCapitalRevertido()));
                 }
                 for (AjustePago a : p.getAjustes()) {
                     escribir(salida, "AJUSTE", valor(p.getNumero()), valor(a.getFecha()),
-                            valor(a.getImporte()), a.getMotivo());
+                            dinero(a.getImporte()), a.getMotivo());
                 }
             }
             for (AutorizacionIngreso a : ingresos.getAutorizaciones()) {
                 if (a instanceof AutorizacionRecurrente) {
                     AutorizacionRecurrente rec = (AutorizacionRecurrente) a;
-                    String dias = "";
-                    for (DiaSemana dia : rec.getDiasPermitidos()) {
-                        if (!dias.isEmpty()) dias += ",";
-                        dias += dia.name();
-                    }
                     escribir(salida, "AUTORIZACION", "RECURRENTE", valor(a.getNumero()),
                             dni(a.getVisitante()), dni(a.getAutorizante()), numero(a.getLote()),
                             valor(rec.getFechaInicio()), valor(rec.getFechaFin()),
-                            valor(a.getHoraDesde()), valor(a.getHoraHasta()), dias);
+                            valor(a.getHoraDesde()), valor(a.getHoraHasta()), "");
                 } else {
                     escribir(salida, "AUTORIZACION", "NORMAL", valor(a.getNumero()),
                             dni(a.getVisitante()), dni(a.getAutorizante()), numero(a.getLote()),
@@ -305,18 +299,18 @@ public class ArchivoDatos {
                 columnas(c, 11);
                 Persona p;
                 String t = c[1];
-                if (t.equals("TITULAR")) p = new Titular(c[3], c[4], c[2], c[5], c[6]);
-                else if (t.equals("FAMILIAR")) p = new Familiar(c[3], c[4], c[2], c[5], c[6]);
-                else if (t.equals("INQUILINO")) p = new Inquilino(c[3], c[4], c[2], c[5], c[6]);
-                else if (t.equals("VISITANTE")) p = new Visitante(c[3], c[4], c[2], c[5], c[6]);
-                else if (t.equals("PROVEEDOR")) p = new Proveedor(c[3], c[4], c[2], c[5], c[6]);
+                if (t.equals("TITULAR")) p = new Titular(c[3], c[4], entero(c[2]), entero(c[5]), c[6]);
+                else if (t.equals("FAMILIAR")) p = new Familiar(c[3], c[4], entero(c[2]), entero(c[5]), c[6]);
+                else if (t.equals("INQUILINO")) p = new Inquilino(c[3], c[4], entero(c[2]), entero(c[5]), c[6]);
+                else if (t.equals("VISITANTE")) p = new Visitante(c[3], c[4], entero(c[2]), entero(c[5]), c[6]);
+                else if (t.equals("PROVEEDOR")) p = new Proveedor(c[3], c[4], entero(c[2]), entero(c[5]), c[6]);
                 else if (t.equals("ADMINISTRADOR")) {
-                    p = new Administrador(c[3], c[4], c[2], c[5], c[6], entero(c[7]), fecha(c[8]));
+                    p = new Administrador(c[3], c[4], entero(c[2]), entero(c[5]), c[6], entero(c[7]), fecha(c[8]));
                 } else if (t.equals("GUARDIA")) {
-                    p = new Guardia(c[3], c[4], c[2], c[5], c[6], entero(c[7]), fecha(c[8]),
+                    p = new Guardia(c[3], c[4], entero(c[2]), entero(c[5]), c[6], entero(c[7]), fecha(c[8]),
                             Turno.valueOf(c[9]), Puesto.valueOf(c[10]), sistema);
                 } else if (t.equals("EMPLEADO")) {
-                    p = new EmpleadoMantenimiento(c[3], c[4], c[2], c[5], c[6],
+                    p = new EmpleadoMantenimiento(c[3], c[4], entero(c[2]), entero(c[5]), c[6],
                             entero(c[7]), fecha(c[8]), Especialidad.valueOf(c[9]));
                 } else throw new IllegalArgumentException("Tipo de persona no valido: " + t);
                 if (personas.put(c[2], p) != null) throw new IllegalArgumentException("DNI repetido.");
@@ -453,10 +447,8 @@ public class ArchivoDatos {
                     a = new AutorizacionIngreso(entero(c[2]), visitante, residente, lote,
                             fecha(c[6]), hora(c[8]), hora(c[9]));
                 } else if (c[1].equals("RECURRENTE")) {
-                    Set<DiaSemana> dias = new HashSet<>();
-                    for (String dia : c[10].split(",")) dias.add(DiaSemana.valueOf(dia));
                     a = new AutorizacionRecurrente(entero(c[2]), visitante, lote, residente,
-                            fecha(c[6]), fecha(c[7]), dias, hora(c[8]), hora(c[9]));
+                            fecha(c[6]), fecha(c[7]), hora(c[8]), hora(c[9]));
                 } else throw new IllegalArgumentException("Tipo de autorizacion desconocido.");
                 sistema.agregarAutorizacion(a);
                 autorizaciones.put(c[2], a);

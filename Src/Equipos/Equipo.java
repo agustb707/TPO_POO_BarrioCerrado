@@ -44,7 +44,22 @@ public abstract class Equipo {
     }
     public void cambiarEstado(EstadoEquipo nuevoEstado) {
         if (nuevoEstado == null) throw new IllegalArgumentException("El estado es obligatorio.");
+        for (OrdenMantenimiento orden : ordenes) {
+            if (!orden.estaAbierta() && orden.getFechaReparacion() != null) {
+                boolean algunaFallaActiva = false;
+                for (Falla falla : fallas) {
+                    if (falla.estaActiva()) algunaFallaActiva = true;
+                }
+                if (!algunaFallaActiva) {
+                    throw new ReglaNegocioException("El arreglo ya fue registrado y el caso esta cerrado. No se puede cambiar el estado.");
+                }
+            }
+        }
         estado = nuevoEstado;
+    }
+    // El cierre de una orden puede devolver el equipo a operativo.
+    void finalizarReparacion() {
+        estado = EstadoEquipo.OPERATIVO;
     }
     public abstract Prioridad determinarPrioridadFalla(int cantidadFallasSector);
     public boolean estaFueraDeServicio() { return estado == EstadoEquipo.FUERA_DE_SERVICIO; }

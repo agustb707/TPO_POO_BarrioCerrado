@@ -60,13 +60,13 @@ public class OrdenMantenimiento {
         if (fecha == null || fecha.isBefore(fechaReparacion)) {
             throw new ReglaNegocioException("Fecha de cierre invalida.");
         }
-        fechaCierre = fecha;
         Equipo equipo = falla.getEquipo();
+        fechaCierre = fecha;
         boolean quedanFallas = false;
         for (Falla fallaActual : equipo.getFallas()) {
             if (fallaActual.estaActiva()) quedanFallas = true;
         }
-        if (!quedanFallas) equipo.cambiarEstado(EstadoEquipo.OPERATIVO);
+        if (!quedanFallas) equipo.finalizarReparacion();
     }
     public void restaurarDatos(int numero, LocalDate fechaApertura,
                                LocalDate fechaReparacion, String descripcionReparacion, LocalDate fechaCierre) {

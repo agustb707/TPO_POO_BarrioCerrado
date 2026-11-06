@@ -11,7 +11,7 @@ import Reclamos.Reclamo;
 
 public class Administrador extends Personal {
     private BarrioCerrado barrio;
-    public Administrador(String nombre, String apellido, String dni, String telefono,
+    public Administrador(String nombre, String apellido, int dni, int telefono,
                          String email, int legajo, LocalDate fechaIngreso) {
         super(nombre, apellido, dni, telefono, email, legajo, fechaIngreso);
     }

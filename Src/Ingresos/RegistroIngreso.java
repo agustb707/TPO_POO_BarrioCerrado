@@ -25,7 +25,7 @@ public class RegistroIngreso {
     }
     public void registrarEgreso(LocalDateTime fechaHora) {
         if (!estaDentro()) throw new IllegalStateException("El egreso ya fue registrado.");
-        if (fechaHora == null || fechaHora.isBefore(fechaHoraIngreso)) {
+        if (fechaHora == null || !fechaHora.isAfter(fechaHoraIngreso)) {
             throw new IllegalArgumentException("El egreso no puede ser anterior al ingreso.");
         }
         fechaHoraEgreso = fechaHora;

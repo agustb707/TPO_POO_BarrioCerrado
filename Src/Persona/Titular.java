@@ -6,12 +6,12 @@ import Excepciones.ReglaNegocioException;
 import java.util.List;
 
 public class Titular extends Residente {
-    public Titular(String nombre, String apellido, String dni, String telefono, String email) {
+    public Titular(String nombre, String apellido, int dni, int telefono, String email) {
         super(nombre, apellido, dni, telefono, email);
     }
     public List<Expensa> consultarExpensas(Lote lote) {
         if (lote == null) throw new IllegalArgumentException("El lote es obligatorio.");
-        if (lote.getTitular() == null || !lote.getTitular().getDni().equals(getDni())) {
+        if (lote.getTitular() == null || lote.getTitular().getDni() != getDni()) {
             throw new ReglaNegocioException("No es titular de este lote.");
         }
         return lote.getExpensas();

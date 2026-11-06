@@ -23,7 +23,7 @@ public class AutorizacionIngreso {
                 || fecha == null || desde == null || hasta == null) {
             throw new ReglaNegocioException("Faltan datos de la autorizacion.");
         }
-        if (hasta.isBefore(desde)) throw new ReglaNegocioException("El horario es invalido.");
+        if (!hasta.isAfter(desde)) throw new ReglaNegocioException("El horario es invalido.");
         if (!lote.puedeAutorizarIngreso(autorizante)) {
             throw new ReglaNegocioException("El residente no esta autorizado para el lote.");
         }
@@ -40,7 +40,7 @@ public class AutorizacionIngreso {
                 && dentroDeFranja(fechaHora.toLocalTime());
     }
     public boolean correspondeAVisitante(Visitante otro) {
-        return otro != null && visitante.getDni().equals(otro.getDni());
+        return otro != null && visitante.getDni() == otro.getDni();
     }
     protected boolean dentroDeFranja(LocalTime hora) {
         return hora != null && !hora.isBefore(horaDesde) && !hora.isAfter(horaHasta);

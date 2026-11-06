@@ -7,7 +7,7 @@ import Enums.Especialidad;
 
 public class EmpleadoMantenimiento extends Personal {
     private final Especialidad especialidad;
-    public EmpleadoMantenimiento(String nombre, String apellido, String dni, String telefono,
+    public EmpleadoMantenimiento(String nombre, String apellido, int dni, int telefono,
                                  String email, int legajo, LocalDate fechaIngreso, Especialidad especialidad) {
         super(nombre, apellido, dni, telefono, email, legajo, fechaIngreso);
         if (especialidad == null) throw new IllegalArgumentException("Especialidad obligatoria.");

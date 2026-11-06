@@ -39,11 +39,11 @@ public class Lote {
     }
     public void agregarResidente(Residente residente) {
         if (residente == null) throw new IllegalArgumentException("El residente es obligatorio.");
-        if (titular != null && titular.getDni().equals(residente.getDni())) {
+        if (titular != null && titular.getDni() == residente.getDni()) {
             throw new IllegalArgumentException("El titular ya pertenece al lote.");
         }
         for (Residente existente : residentes) {
-            if (existente.getDni().equals(residente.getDni())) {
+            if (existente.getDni() == residente.getDni()) {
                 throw new IllegalArgumentException("Residente repetido en el lote.");
             }
         }
@@ -53,8 +53,11 @@ public class Lote {
     public void autorizarReclamos(Residente residente) {
         if (residente == null) throw new IllegalArgumentException("El residente es obligatorio.");
         for (Residente existente : residentes) {
-            if (existente.getDni().equals(residente.getDni())) {
-                if (!puedePresentarReclamo(existente)) autorizadosReclamos.add(existente);
+            if (existente.getDni() == residente.getDni()) {
+                if (puedePresentarReclamo(existente)) {
+                    throw new IllegalArgumentException("El residente ya estaba autorizado para reclamos.");
+                }
+                autorizadosReclamos.add(existente);
                 return;
             }
         }
@@ -62,17 +65,20 @@ public class Lote {
     }
     public boolean puedePresentarReclamo(Residente residente) {
         if (residente == null || titular == null) return false;
-        if (titular.getDni().equals(residente.getDni())) return true;
+        if (titular.getDni() == residente.getDni()) return true;
         for (Residente autorizado : autorizadosReclamos) {
-            if (autorizado.getDni().equals(residente.getDni())) return true;
+            if (autorizado.getDni() == residente.getDni()) return true;
         }
         return false;
     }
     public void autorizarIngresos(Residente residente) {
         if (residente == null) throw new IllegalArgumentException("El residente es obligatorio.");
         for (Residente existente : residentes) {
-            if (existente.getDni().equals(residente.getDni())) {
-                if (!puedeAutorizarIngreso(existente)) autorizadosIngreso.add(existente);
+            if (existente.getDni() == residente.getDni()) {
+                if (puedeAutorizarIngreso(existente)) {
+                    throw new IllegalArgumentException("El residente ya estaba autorizado para visitas.");
+                }
+                autorizadosIngreso.add(existente);
                 return;
             }
         }
@@ -80,9 +86,9 @@ public class Lote {
     }
     public boolean puedeAutorizarIngreso(Residente residente) {
         if (residente == null || titular == null) return false;
-        if (titular.getDni().equals(residente.getDni())) return true;
+        if (titular.getDni() == residente.getDni()) return true;
         for (Residente autorizado : autorizadosIngreso) {
-            if (autorizado.getDni().equals(residente.getDni())) return true;
+            if (autorizado.getDni() == residente.getDni()) return true;
         }
         return false;
     }

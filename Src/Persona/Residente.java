@@ -19,7 +19,7 @@ public abstract class Residente extends Persona {
     private List<Lote> lotes;
     private static int secuenciaAutorizaciones = 0;
 
-    protected Residente(String nombre, String apellido, String dni, String telefono, String email) {
+    protected Residente(String nombre, String apellido, int dni, int telefono, String email) {
         super(nombre, apellido, dni, telefono, email);
         lotes = new ArrayList<>();
     }
