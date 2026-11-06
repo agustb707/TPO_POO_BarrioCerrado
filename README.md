@@ -80,7 +80,7 @@ Barrio-Los-Aromos/
 │   └── uml/
 │       └── [diagramas UML y archivos fuente]
 ├── Src/                 # Código Java (Etapa 2)
-└── test/                # Pruebas (Etapa 2)
+└── test/                # Test (Etapa 2)
 ```
 
 Los nombres entre corchetes son descriptivos y deben reemplazarse por los archivos reales que suba el grupo.

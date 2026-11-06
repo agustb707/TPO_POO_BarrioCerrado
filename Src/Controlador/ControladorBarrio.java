@@ -39,6 +39,8 @@ public class ControladorBarrio {
             Falla.restaurarSecuencia(barrio.getEquipos());
             OrdenMantenimiento.restaurarSecuencia(barrio.getEquipos());
             Residente.restaurarSecuenciaAutorizaciones(ingresos.getAutorizaciones());
+            // Actualizar reglas dependientes del tiempo al abrir el sistema.
+            if (actualizarReglas()) guardar();
         } else {
             barrio = new BarrioCerrado("Los Aromos");
             ingresos = new SistemaIngreso(barrio);
@@ -51,7 +53,48 @@ public class ControladorBarrio {
         }
     }
     public void guardar() throws IOException {
+        actualizarReglas();
         archivo.guardar(new DatosSistema(barrio, expensas, ingresos, avisos));
+    }
+
+    // Actualiza reglas que pueden cumplirse con el paso del tiempo.
+    // Devuelve true si se modificó algo para que pueda guardarse en TXT.
+    public boolean actualizarReglas() {
+        boolean cambios = false;
+        LocalDateTime ahora = LocalDateTime.now();
+
+        for (Reclamo reclamo : barrio.getReclamos()) {
+            EstadoReclamo anterior = reclamo.getEstado();
+            reclamo.cerrarSiVencioPlazo(ahora);
+            if (reclamo.getEstado() != anterior) cambios = true;
+        }
+
+        // Los avisos de morosidad se guardan en GestorExpensas.
+        if (!expensas.generarAvisosMorosidad().isEmpty()) cambios = true;
+
+        // Los avisos de reclamos y cámaras se guardan para el administrador.
+        if (barrio.getAdministrador() != null) {
+            for (Notificacion nuevo : Notificacion.generarAvisosAdministrador(barrio)) {
+                boolean existe = false;
+                for (Notificacion anterior : avisos) {
+                    if (anterior.getMotivo() == nuevo.getMotivo()
+                            && anterior.getMensaje().equals(nuevo.getMensaje())) {
+                        existe = true;
+                        break;
+                    }
+                }
+                if (!existe) {
+                    avisos.add(nuevo);
+                    cambios = true;
+                }
+            }
+        }
+        return cambios;
+    }
+
+    // Para refrescar las reglas desde la ventana, aunque no se realice un alta.
+    public void actualizarYGuardar() throws IOException {
+        if (actualizarReglas()) guardar();
     }
     public BarrioCerrado barrio() { return barrio; }
     public GestorExpensas expensas() { return expensas; }
@@ -159,13 +202,11 @@ public class ControladorBarrio {
         return barrio.getAdministrador().generarOrdenMantenimiento(falla, tecnico, trabajo);
     }
     public void registrarAvisos() {
-        if (barrio.getAdministrador() == null) throw new IllegalArgumentException("No hay administrador.");
-        for (Notificacion nuevo : Notificacion.generarAvisosAdministrador(barrio)) {
-            boolean existe = false;
-            for (Notificacion anterior : avisos)
-                if (anterior.getMotivo() == nuevo.getMotivo() && anterior.getMensaje().equals(nuevo.getMensaje())) existe = true;
-            if (!existe) avisos.add(nuevo);
+        if (barrio.getAdministrador() == null) {
+            throw new IllegalArgumentException("No hay administradores existentes, registre al menos uno para continuar");
         }
+        actualizarReglas();
     }
     public List<Notificacion> avisos() { return new ArrayList<>(avisos); }
 }
+

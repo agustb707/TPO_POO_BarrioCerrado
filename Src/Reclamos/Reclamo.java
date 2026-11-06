@@ -151,6 +151,7 @@ public class Reclamo {
 
     public boolean requiereEscalamiento(LocalDateTime fechaActual) {
         return fechaActual != null && prioridad == Prioridad.ALTA &&
+                estado != EstadoReclamo.RESUELTO && estado != EstadoReclamo.CERRADO &&
                 fechaAtencion == null &&
                 !fechaActual.isBefore(fecha) &&
                 Duration.between(fecha, fechaActual).toHours() >= 24;
@@ -211,3 +212,4 @@ public class Reclamo {
     public Personal getResponsable() { return responsable; }
     public List<Comentario> getComentarios() { return new ArrayList<>(comentarios); }
 }
+

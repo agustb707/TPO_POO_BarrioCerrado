@@ -1,16 +1,20 @@
-
-
 --- Enunciado:
 
     Un barrio cerrado con 150 lotes necesita un sistema para ordenar la relación
     entre la administración y los vecinos, que hoy se resuelve con planillas y mensajes sueltos.
 
     Propuesta elegida: A. Gestión de un barrio cerrado «Los Aromos».
-    Etapa: 1. Modelado y aplicación de patrones.
+    Etapas: 1. Modelado y 2. Implementación con Java Swing y archivos TXT.
 
 
 
---- Actores:
+--- Actores y organización del modelo:
+
+    Actores humanos: Titular, Familiar, Inquilino, Administrador, Guardia,
+    EmpleadoMantenimiento, Visitante y Proveedor.
+    Las siguientes son las clases utilizadas para representarlos, junto con
+    las demás entidades y controladores del sistema.
+
 
     Clase: BarrioCerrado
     Atributos:
@@ -28,6 +32,10 @@
     - registrarEquipo(equipo: Equipo): void
     - calcularSuperficieTotal(): double
     - obtenerPresupuesto(periodo: YearMonth): double
+    - registrarPresupuesto(periodo: YearMonth, importe: double): void
+    - agregarReclamo(reclamo: Reclamo): void
+    - contarFallasSector(sector: Sector): int
+    - asignarAdministrador(administrador: Administrador): void
 
 
     Clase: Lote
@@ -47,6 +55,11 @@
     - calcularCoeficiente(superficieTotal: double): double
     - contarPeriodosImpagos(): int
     - actualizarMorosidad(): void
+    - autorizarIngresos(residente: Residente): void
+    - puedeAutorizarIngreso(residente: Residente): boolean
+    - agregarExpensa(expensa: Expensa): void
+    - obtenerExpensasPendientesOrdenadas(): List<Expensa>
+    - getExpensas(): List<Expensa>
 
 
     Clase abstracta: Persona
@@ -58,6 +71,8 @@
     - email: String
     Métodos:
     - obtenerNombreCompleto(): String
+    Validaciones de datos: DNI entero de 7 a 9 cifras, teléfono entero de 8
+    cifras sin código de área, y correo con @ y un punto posterior.
 
 
     Clase abstracta: Residente extends Persona
@@ -68,6 +83,7 @@
     - comentarReclamo(reclamo: Reclamo, texto: String): void
     - registrarFalla(equipo: Equipo, descripcion: String): Falla
     - autorizarIngreso(visitante: Visitante, lote: Lote, fecha: LocalDate, horaDesde: LocalTime, horaHasta: LocalTime): AutorizacionIngreso
+    - agregarLote(lote: Lote): void
 
 
     Clase: Titular extends Residente
@@ -105,6 +121,9 @@
     - generarReporteReclamosPendientes(): List<Reclamo>
     - generarReporteMorosidad(): Map<Lote, double>
     - generarReporteEquiposFueraServicio(): List<Equipo>
+    Nota de implementación MVC: las operaciones de expensas y reportes se
+    coordinan desde GestorExpensas, Reporte y ControladorBarrio; el
+    Administrador no concentra los cálculos.
 
 
     Clase: Guardia extends Personal
@@ -176,6 +195,7 @@
     - agregarComentario(autor: Persona, texto: String): void
     - consultarHistorial(): List<HistorialEstado>
     - estaEnCurso(): boolean
+    - restaurarReclamos(reclamos: List<Reclamo>): void [estático, soporte de carga]
 
 
     Clase: HistorialEstado
@@ -287,6 +307,8 @@
     - cambiarEstado(nuevoEstado: EstadoEquipo): void
     - determinarPrioridadFalla(cantidadFallasSector: int): Prioridad
     - estaFueraDeServicio(): boolean
+    - registrarOrden(orden: OrdenMantenimiento): void
+    - finalizarReparacion(): void [uso interno de mantenimiento]
 
 
     Clase: Luminaria extends Equipo
@@ -337,6 +359,8 @@
     Métodos:
     - asociarOrden(orden: OrdenMantenimiento): void
     - requiereAvisoAdministrador(fechaActual: LocalDateTime): boolean
+    - estaActiva(): boolean
+    - restaurarSecuencia(equipos: List<Equipo>): void [estático, soporte de carga]
 
 
     Clase: OrdenMantenimiento
@@ -357,6 +381,8 @@
     - registrarReparacion(fecha: LocalDate, descripcion: String): void
     - cerrarOrden(fecha: LocalDate): void
     - estaAbierta(): boolean
+    - getEquipo(): Equipo
+    - restaurarSecuencia(equipos: List<Equipo>): void [estático, soporte de carga]
 
 
 
@@ -378,12 +404,17 @@
     Atributos:
     - fechaInicio: LocalDate
     - fechaFin: LocalDate
-    - diasPermitidos: Set<DiaSemana>
+    - diasPermitidos: Set<DiaSemana> (atributo conservado por compatibilidad;
+      el usuario NO selecciona días: se habilitan todos dentro del rango)
     Métodos:
     - esValida(fechaHora: LocalDateTime): boolean
+    - getFechaInicio(): LocalDate
+    - getFechaFin(): LocalDate
+    La autorización recurrente se registra con fecha inicial, fecha final
+    y franja horaria diaria, hasta 30 días inclusive.
 
 
-    Enum: DiaSemana
+    Enum: DiaSemana (interno, ya no se solicita por pantalla)
     - LUNES
     - MARTES
     - MIERCOLES
@@ -431,6 +462,126 @@
     - generarReclamosPendientes(reclamos: List<Reclamo>): List<Reclamo>
     - generarMorosidadPorLote(lotes: List<Lote>): Map<Lote, double>
     - generarEquiposFueraServicio(equipos: List<Equipo>): List<Equipo>
+    Los reportes se calculan y muestran en la opción «Ver reportes»; no es
+    obligatorio crear un archivo nuevo ni una pantalla de «Crear reportes».
+
+--- Clases agregadas durante la implementación (Swing, MVC y archivos TXT):
+
+    Clase: Main (paquete raíz Src)
+    Responsabilidad: iniciar la aplicación gráfica en el hilo de eventos.
+    Métodos:
+    - main(args: String[]): void
+    No contiene reglas de negocio.
+
+    Clase: VentanaPrincipal extends JFrame (paquete Vista)
+    Atributos principales:
+    - controlador: ControladorBarrio
+    - componentes Swing para botones, formularios, listados y navegación
+    Métodos:
+    - VentanaPrincipal(controlador: ControladorBarrio)
+    - métodos privados para mostrar los seis módulos y recoger los datos
+    Responsabilidad: interacción y presentación, no cálculos de expensas
+    ni validaciones de estado propias del dominio.
+    Tecnologías del material: JFrame, JPanel, JButton, JLabel, JTextField,
+    cuadros de diálogo y eventos ActionListener.
+
+    Clase: ControladorBarrio (paquete Controlador)
+    Atributos:
+    - archivo: ArchivoDatos
+    - barrio: BarrioCerrado
+    - expensas: GestorExpensas
+    - ingresos: SistemaIngreso
+    - avisos: List<Notificacion>
+    - reportes: Reporte
+    Métodos públicos principales:
+    - ControladorBarrio()
+    - guardar(): void
+    - actualizarReglas(): boolean
+    - actualizarYGuardar(): void
+    - barrio(): BarrioCerrado
+    - expensas(): GestorExpensas
+    - ingresos(): SistemaIngreso
+    - reportes(): Reporte
+    - lote(numero: int): Lote
+    - persona(dni: int): Persona
+    - residente(lote: Lote, dni: int): Residente
+    - empleado(legajo: int): Personal
+    - tecnico(legajo: int): EmpleadoMantenimiento
+    - guardia(legajo: int): Guardia
+    - equipo(codigo: String): Equipo
+    - reclamo(numero: int): Reclamo
+    - orden(numero: int): OrdenMantenimiento
+    - pago(numero: int): Pago
+    - registro(numero: int): RegistroIngreso
+    - visitante(dni: int): Visitante
+    - siguientePermiso(): int
+    - registrarLote(numero: int, superficie: double, titular: Titular): void
+    - agregarResidente(numero: int, residente: Residente): void
+    - registrarPersonal(personal: Personal): void
+    - crearReclamo(...): Reclamo
+    - emitir(mes: YearMonth, presupuesto: double): List<Expensa>
+    - crearOrden(falla: Falla, tecnico: EmpleadoMantenimiento, trabajo: String): OrdenMantenimiento
+    - registrarAvisos(): void
+    - avisos(): List<Notificacion>
+    Responsabilidad: coordinar solicitudes de la ventana, modelo, archivos
+    y actualización de reglas que dependen del tiempo.
+
+    Clase: GestorExpensas (paquete Expensas)
+    Atributos principales:
+    - barrio: BarrioCerrado
+    - pagos y avisos registrados
+    Métodos principales:
+    - emitirExpensas(periodo: YearMonth): List<Expensa>
+    - registrarPago(lote: Lote, fecha: LocalDate, importe: double, medio: MedioPago): Pago
+    - registrarAjuste(pago: Pago, ajuste: AjustePago): void
+    - generarAvisosMorosidad(): List<Notificacion>
+    Responsabilidad: coordinar emisión, imputaciones, ajustes y avisos,
+    delegando cálculos a Expensa y Lote.
+
+    Clase: SistemaIngreso (paquete Ingresos)
+    Atributos:
+    - barrio: BarrioCerrado
+    - autorizaciones: List<AutorizacionIngreso>
+    - registros: List<RegistroIngreso>
+    Métodos principales:
+    - agregarAutorizacion(autorizacion: AutorizacionIngreso): void
+    - buscarAutorizacionVigente(visitante: Visitante, fechaHora: LocalDateTime): AutorizacionIngreso
+    - buscarIngresoAbierto(visitante: Visitante): RegistroIngreso
+    - registrarIngreso(visitante: Visitante, guardia: Guardia, fechaHora: LocalDateTime): RegistroIngreso
+    - registrarEgreso(registro: RegistroIngreso, fechaHora: LocalDateTime): void
+    Responsabilidad: validar permisos, impedir ingresos duplicados y
+    coordinar entradas y salidas.
+
+    Clase: DatosSistema (paquete Archivos)
+    Atributos:
+    - barrio: BarrioCerrado
+    - gestorExpensas: GestorExpensas
+    - sistemaIngreso: SistemaIngreso
+    - avisosAdministrador: List<Notificacion>
+    Métodos: constructor y getters para reunir los datos a guardar.
+
+    Clase: ArchivoDatos (paquete Archivos)
+    Atributos:
+    - archivo: File
+    Métodos:
+    - existe(): boolean
+    - guardar(datos: DatosSistema): void
+    - cargar(): DatosSistema
+    Responsabilidad: escribir y leer todos los datos y reconstruir
+    las relaciones entre objetos mediante un único archivo de texto:
+    Datos/LosAromos.txt.
+
+    Clase: ArchivoLotes (paquete Archivos)
+    Métodos:
+    - leerLotes(): List<Lote>
+    - guardarLotes(lotes: List<Lote>): void
+    - getRuta(): String
+    Uso actual: importar lotes desde Datos/Lotes.txt cuando corresponde.
+
+    Clase: MainConsola (paquete raíz Src)
+    Se conserva como versión alternativa del menú por consola, pero el
+    punto de entrada principal de la entrega con interfaz es Main + Swing.
+
 
 --- Relaciones entre clases:
 
@@ -478,6 +629,15 @@
     Notificacion ──> Persona (Cada aviso 1 destinatario)
     Notificacion ──> Lote (Avisos de morosidad vinculados a 1 lote)
     Administrador ..> Reporte (Dependencia)
+    Main --> ControladorBarrio (Creación)
+    Main --> VentanaPrincipal (Creación)
+    VentanaPrincipal --> ControladorBarrio (Asociación; vista consulta/controla)
+    ControladorBarrio --> BarrioCerrado, GestorExpensas, SistemaIngreso, Reporte (Coordinación)
+    ControladorBarrio --> ArchivoDatos (Persistencia)
+    ArchivoDatos --> DatosSistema (Lectura/escritura)
+    DatosSistema --> BarrioCerrado, GestorExpensas, SistemaIngreso, Notificacion (Agrupa datos)
+    GestorExpensas --> Lote, Expensa, Pago, AjustePago, Notificacion (Dependencias)
+    SistemaIngreso --> AutorizacionIngreso, RegistroIngreso, Guardia (Dependencias)
     Reporte ..> Reclamo, Lote, Expensa, Equipo (Dependencias)
     Los enums son tipos de atributos, no entidades ni clases dependientes por composición.
 
@@ -513,9 +673,9 @@ Se puede encontrar el diagrama inicial de clases dentro de la carpeta uml dentro
     RF25. Registrar permisos de ingreso por varios días para proveedores.
     RF26. Comprobar que una visita tenga permiso antes de ingresar.
     RF27. Registrar la entrada y salida de los visitantes.
-    RF28. Crear reportes de reclamos pendientes.
-    RF29. Crear reportes de lotes con deudas.
-    RF30. Crear reportes de equipos fuera de servicio.
+    RF28. Consultar reportes calculados de reclamos pendientes.
+    RF29. Consultar reportes calculados de lotes con deudas.
+    RF30. Consultar reportes calculados de equipos fuera de servicio.
 
 
 
@@ -544,6 +704,8 @@ Se puede encontrar el diagrama inicial de clases dentro de la carpeta uml dentro
     - Una orden de mantenimiento no puede cerrarse sin fecha, técnico y descripción de la reparación.
     - Toda visita exige autorización previa del vecino, con fecha y horario vigentes; de lo contrario no ingresa.
     - Las autorizaciones recurrentes de proveedores no pueden superar 30 días.
+    - En la interfaz se introducen fechas de inicio y fin y horas diarias;
+      no se pide elegir lunes, martes, etc.
     - Un visitante no puede registrar otro ingreso si su egreso anterior no fue registrado.
     - El administrador puede consultar reportes de reclamos pendientes, morosidad y equipos fuera de servicio.
 
@@ -571,6 +733,20 @@ Se puede encontrar el diagrama inicial de clases dentro de la carpeta uml dentro
     - Las notificaciones se registran en el sistema; la consigna no exige integrar un proveedor real de correo o mensajería.
     - Las fechas y horas se consideran en la zona horaria local; una autorización es válida solo dentro de su franja inclusive.
     - El rol de visitante/proveedor no opera el sistema; el guardia registra sus movimientos.
+    - El teléfono se ingresa sin código de área, con exactamente ocho cifras.
+    - La fecha de ingreso del personal debe ser anterior a la actual.
+    - Los importes ingresados admiten un máximo de dos decimales.
+    - Los datos de todo el sistema se conservan en Datos/LosAromos.txt.
+    - La interfaz gráfica presenta «Ver reportes»: se muestran los resultados
+      calculados, sin exigir crear o exportar archivos de reportes.
+    - En la interfaz los permisos recurrentes de proveedores permiten todos
+      los días comprendidos entre fechaInicio y fechaFin, durante la franja horaria.
+    - Al cerrar una orden queda registrada la reparación; el estado se
+      actualiza mediante la lógica de mantenimiento y se restringen cambios
+      manuales sobre el caso cerrado.
+    - Avisos de morosidad, reclamos escalados y cámaras: se registran en el
+      sistema de manera que puedan recuperarse; el controlador revisa las
+      condiciones al iniciar y actualizar la información.
 
 
 --- Diagramas de caso de uso:
@@ -581,6 +757,13 @@ Se puede encontrar el diagrama inicial de clases dentro de la carpeta uml dentro
     - Administrador: Asignar reclamo, Actualizar/cerrar reclamo, Emitir expensas, Registrar pago, Ajustar pago, Generar orden de mantenimiento, Consultar estado de equipo, Emitir reportes.
     - Guardia: Registrar falla, Verificar autorización de ingreso, Registrar ingreso, Registrar egreso, Consultar estado de equipo.
     - Empleado de mantenimiento: Actualizar reclamo asignado, Registrar reparación y cerrar orden.
+
+    Casos de uso de interfaz (no alteran los casos de negocio):
+    - Administrar lotes y personal; Administrar reclamos; Administrar expensas;
+      Administrar equipos; Administrar visitas; Ver reportes.
+    - Para los proveedores, solicitar fechas y horario, no una lista de días.
+    - «Ver reportes» agrupa consultar pendientes, morosidad y equipos fuera
+      de servicio; la clase Reporte sigue calculándolos.
 
     Relaciones:
     - «Registrar ingreso» <<include>> «Verificar autorización de ingreso»: la validación es obligatoria.
@@ -606,7 +789,10 @@ Los diagramas de secuencia se pueden encontrar dentro de la carpeta uml dentro d
        [no está dentro] SistemaIngreso -> RegistroIngreso: crearRegistro(autorización, guardia, fechaHora); devuelve registro.
     6. SistemaIngreso --> Guardia: ingreso registrado.
     7. Luego, en otro momento, Guardia -> SistemaIngreso: registrarEgreso(registro, fechaHora), SistemaIngreso -> RegistroIngreso: registrarEgreso(fechaHora).
-    Nota: SistemaIngreso es controlador incorporado en el rediseño final, no una entidad del mundo real. Si no se incorpora, se pueden enviar los mensajes desde Guardia pero queda más acoplado.
+    Nota actualizada: SistemaIngreso se implementó como controlador de negocio.
+    VentanaPrincipal solicita la operación a ControladorBarrio, que coordina
+    con SistemaIngreso y las clases de dominio. No se usa el camino alternativo
+    que delegaba toda la lógica directamente a Guardia.
 
     Secuencia 2. Registrar pago de expensas (con loop e interés por mora).
     Objetos: Administrador (actor), GestorExpensas (controlador propuesto), Lote, Expensa, Pago, ImputacionPago, AjustePago.
@@ -623,7 +809,10 @@ Los diagramas de secuencia se pueden encontrar dentro de la carpeta uml dentro d
     6. GestorExpensas -> Lote: actualizarMorosidad().
     7. GestorExpensas --> Administrador: recibo y saldos actualizados.
     8. Fragmento alt [importe inválido o sin deuda]: rechazar operación sin registrar pago.
-    Nota: conviene mostrar cómo se distribuye el importe entre intereses y capital, y que no se elimina un pago si después hay que ajustarlo.
+    Nota actualizada: GestorExpensas existe en el código. ControladorBarrio
+    recibe la acción desde Swing, GestorExpensas coordina el pago y Expensa
+    calcula deuda e imputaciones. Los pagos se corrigen con AjustePago,
+    no se eliminan.
 
 
 Diagrama de clases final:
@@ -636,6 +825,8 @@ El diagrama final de clases se puede encontrar dentro de la carpeta uml dentro d
     Decisión tomada: separar la lógica de expensas en GestorExpensas, la de acceso en SistemaIngreso y los reportes en Reporte; Administrador representa al empleado que inicia las operaciones.
     Clases involucradas: Administrador, GestorExpensas, SistemaIngreso, Reporte, Expensa.
     Ventaja: cambios en pagos, accesos o reportes no obligan a modificar una clase administrativa enorme.
+    Adaptación MVC: VentanaPrincipal recoge datos, ControladorBarrio coordina,
+    ArchivoDatos persiste y las entidades del modelo conservan sus reglas.
 
     2. OCP - Principio abierto/cerrado.
     Problema detectado: la prioridad de órdenes depende del tipo de equipo; si el administrador usa muchos if por tipo, cada equipo nuevo obligaría a cambiar esa lógica.
@@ -667,7 +858,7 @@ El diagrama final de clases se puede encontrar dentro de la carpeta uml dentro d
 
     3. Controlador.
     Problema detectado: las operaciones de registrar ingreso y registrar pago coordinan varios objetos y no deberían resolverse desde las entidades de presentación ni en una sola clase Administrador.
-    Decisión tomada: agregar SistemaIngreso y GestorExpensas para recibir las operaciones e interactuar con las clases del dominio.
+    Decisión tomada: agregar SistemaIngreso y GestorExpensas para recibir las operaciones e interactuar con las clases del dominio. La interfaz Swing se coordina mediante ControladorBarrio.
     Clases involucradas: SistemaIngreso, GestorExpensas, AutorizacionIngreso, RegistroIngreso, Lote, Expensa, Pago.
     Ventaja: centraliza cada flujo de negocio sin sobrecargar a Guardia o Administrador.
 
@@ -676,3 +867,28 @@ El diagrama final de clases se puede encontrar dentro de la carpeta uml dentro d
     Decisión tomada: sobrescribir esValida(...) en AutorizacionRecurrente y determinarPrioridadFalla(...) en Camara y Luminaria.
     Clases involucradas: AutorizacionIngreso, AutorizacionRecurrente, Equipo, Camara, Luminaria.
     Ventaja: se evitan estructuras condicionales repetidas y se mantiene una interfaz de uso común.
+
+```
+
+--- Cambios respecto del análisis inicial (nota para el informe final):
+
+    1. Se incorporó una interfaz gráfica con Java Swing siguiendo MVC:
+       Main inicia, VentanaPrincipal muestra, ControladorBarrio coordina.
+    2. Se agregaron ArchivoDatos y DatosSistema para persistencia integral
+       en un único TXT; ArchivoLotes queda para datos iniciales.
+    3. Los datos de Persona se mantuvieron con DNI y teléfono enteros
+       y se documentaron sus validaciones.
+    4. Se consolidaron los seis módulos del menú. «Ver reportes» consulta
+       datos existentes; no existe una acción manual de «Crear reportes».
+    5. Se simplificó el alta de permisos recurrentes: fecha inicio/fin
+       y horario, sin seleccionar días en pantalla. El atributo interno
+       diasPermitidos de la versión revisada de código queda como detalle
+       de compatibilidad, con los siete días habilitados.
+    6. Se documentó la actualización por tiempo de reclamos y notificaciones
+       y su coordinación con el guardado en TXT.
+    7. Se mantuvieron los tres SOLID seleccionados (SRP, OCP y LSP) y
+       cuatro GRASP (Experto, Creador, Controlador y Polimorfismo).
+    8. Cambios en diagramas pendientes de reflejar en los archivos gráficos:
+       componentes MVC, persistencia y la simplificación de las visitas.
+
+-

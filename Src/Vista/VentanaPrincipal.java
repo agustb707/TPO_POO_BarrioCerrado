@@ -287,6 +287,13 @@ public class VentanaPrincipal extends JFrame {
         actualizarListado();
     }
     private void actualizarListado() {
+        try {
+            c.actualizarYGuardar();
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(this,
+                    "No se pudieron actualizar los datos: " + e.getMessage(),
+                    "Error al guardar", JOptionPane.ERROR_MESSAGE);
+        }
         StringBuilder s = new StringBuilder();
         switch (seccion) {
             case 0:
