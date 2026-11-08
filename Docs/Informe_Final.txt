@@ -9,8 +9,10 @@ Informe Final de Trabajo Práctico
         ya que se buscó respetar la estructura planteada inicialmente. Los principales cambios consistieron en la organización
         del código mediante la creación de paquetes específicos y la reubicación de sus respectivas clases dentro del directorio
         `src`, con el objetivo de lograr una mejor modularización y facilitar el mantenimiento del sistema.
+        Se agregaron ArchivoDatos y DatosSistema para poder contar con la persistencia integral de datos en un único TXT, con ArchivoLotes quedando 
+        utilizado solo para datos iniciales.
         Además, se incorporó una interfaz gráfica utilizando Java Swing, siguiendo el modelo MVC (Modelo-Vista-Controlador),
-        para separar la presentación de la lógica del programa y permitir una interacción más sencilla con el usuario.
+        para separar la presentación de la lógica del programa y permitir una interacción más sencilla con el usuario (Main inicia, VentanaPrincipal muestra, ControladorBarrio coordina).+
 
 
     Distribución de tareas
