@@ -867,28 +867,3 @@ El diagrama final de clases se puede encontrar dentro de la carpeta uml dentro d
     Decisión tomada: sobrescribir esValida(...) en AutorizacionRecurrente y determinarPrioridadFalla(...) en Camara y Luminaria.
     Clases involucradas: AutorizacionIngreso, AutorizacionRecurrente, Equipo, Camara, Luminaria.
     Ventaja: se evitan estructuras condicionales repetidas y se mantiene una interfaz de uso común.
-
-```
-
---- Cambios respecto del análisis inicial (nota para el informe final):
-
-    1. Se incorporó una interfaz gráfica con Java Swing siguiendo MVC:
-       Main inicia, VentanaPrincipal muestra, ControladorBarrio coordina.
-    2. Se agregaron ArchivoDatos y DatosSistema para persistencia integral
-       en un único TXT; ArchivoLotes queda para datos iniciales.
-    3. Los datos de Persona se mantuvieron con DNI y teléfono enteros
-       y se documentaron sus validaciones.
-    4. Se consolidaron los seis módulos del menú. «Ver reportes» consulta
-       datos existentes; no existe una acción manual de «Crear reportes».
-    5. Se simplificó el alta de permisos recurrentes: fecha inicio/fin
-       y horario, sin seleccionar días en pantalla. El atributo interno
-       diasPermitidos de la versión revisada de código queda como detalle
-       de compatibilidad, con los siete días habilitados.
-    6. Se documentó la actualización por tiempo de reclamos y notificaciones
-       y su coordinación con el guardado en TXT.
-    7. Se mantuvieron los tres SOLID seleccionados (SRP, OCP y LSP) y
-       cuatro GRASP (Experto, Creador, Controlador y Polimorfismo).
-    8. Cambios en diagramas pendientes de reflejar en los archivos gráficos:
-       componentes MVC, persistencia y la simplificación de las visitas.
-
--
